@@ -1,0 +1,124 @@
+<ui:composition template="/WEB-INF/templates/template-privado.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui">
+
+    <ui:param name="activeMenu" value="buscar" />
+
+    <ui:define name="head">
+        <style>
+            .detailsHead{ display:flex; align-items:center; justify-content:space-between; gap: 1rem; margin-bottom: 1rem; }
+            .searchGrid{ display:grid; grid-template-columns: 1.05fr .95fr; gap: 1rem; }
+            .filters{ display:grid; grid-template-columns: repeat(3, 1fr); gap: .8rem; margin-bottom: 1rem; }
+            
+            .field label{ display:block; font-size:.88rem; color: rgba(255,255,255,0.80); margin: 0 0 .35rem; }
+            body .ui-inputfield, body .ui-selectonemenu { width:100%; background: rgba(0,0,0,0.20); border: 1px solid rgba(255,255,255,0.12); color: white; border-radius: 14px; }
+            
+            .panel{ padding: 1rem; border-radius: 18px; border: 1px solid rgba(255,255,255,0.10); background: rgba(0,0,0,0.18); }
+            
+            .item{ display:flex; gap: .85rem; padding: .85rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.10); background: rgba(255,255,255,0.04); align-items:flex-start; margin-bottom: 0.8rem; }
+            .badge{ width:46px; height:46px; border-radius: 16px; display:grid; place-items:center; border: 1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.06); flex: 0 0 auto; }
+            
+            @media (max-width: 980px){ 
+                .searchGrid{ grid-template-columns: 1fr; } 
+                .filters{ grid-template-columns: 1fr; }
+            }
+        </style>
+    </ui:define>
+
+    <ui:define name="content">
+        <h:form id="buscaForm">
+        	<p:growl id="growlBusca" showDetail="true" life="4000"/>
+            <div style="padding: 1.2rem;">
+                
+                <div class="detailsHead">
+                    <div>
+                        <div style="font-weight:900; font-size:1.15rem;">Buscar Jogo</div>
+                        <div class="muted">Filtre por dia/horário/categoria/distância e envie convite.</div>
+                    </div>
+                    <div class="flex gap-2 flex-wrap">
+                        <p:commandButton value="Limpar" action="#{buscaBean.limpar}" update="@form" styleClass="btn-sec" icon="pi pi-times"/>
+                        <p:commandButton value="Buscar" action="#{buscaBean.pesquisar}" update="resultadosPanel" styleClass="btn" icon="pi pi-search"/>
+                    </div>
+                </div>
+
+                <div class="searchGrid">
+                    
+                    <div class="panel" style="margin:0;">
+                        <div style="font-weight:900; margin-bottom:1rem;"><i class="pi pi-filter mr-2"></i>Filtros</div>
+                        
+                        <div class="filters">
+                            <div class="field">
+                                <label>Cidade</label>
+                                <p:inputText value="#{buscaBean.filtro.cidade}" placeholder="Ex: São Paulo" />
+                            </div>
+                            <div class="field">
+                                <label>Dia</label>
+                                <p:selectOneMenu value="#{buscaBean.filtro.diaSemana}">
+                                    <f:selectItem itemLabel="Qualquer" itemValue="Qualquer"/>
+                                    <f:selectItem itemLabel="Sábado" itemValue="Sábado"/>
+                                    <f:selectItem itemLabel="Domingo" itemValue="Domingo"/>
+                                    <f:selectItem itemLabel="Segunda" itemValue="Segunda"/>
+                                    <f:selectItem itemLabel="Terça" itemValue="Terça"/>
+                                    <f:selectItem itemLabel="Quarta" itemValue="Quarta"/>
+                                    <f:selectItem itemLabel="Quinta" itemValue="Quinta"/>
+                                    <f:selectItem itemLabel="Sexta" itemValue="Sexta"/>
+                                </p:selectOneMenu>
+                            </div>
+                            <div class="field">
+                                <label>Categoria</label>
+                                <p:selectOneMenu value="#{buscaBean.filtro.categoria}">
+                                    <f:selectItem itemLabel="Qualquer" itemValue="Qualquer"/>
+                                    <f:selectItem itemLabel="Esporte" itemValue="Esporte"/>
+                                    <f:selectItem itemLabel="Veterano" itemValue="Veterano"/>
+                                    <f:selectItem itemLabel="Master" itemValue="Master"/>
+                                </p:selectOneMenu>
+                            </div>
+                            <div class="field">
+                                <label>Distância Máx.</label>
+                                <p:selectOneMenu value="#{buscaBean.filtro.distanciaKm}">
+                                    <f:selectItem itemLabel="5 km" itemValue="5.0"/>
+                                    <f:selectItem itemLabel="10 km" itemValue="10.0"/>
+                                    <f:selectItem itemLabel="15 km" itemValue="15.0"/>
+                                    <f:selectItem itemLabel="25 km" itemValue="25.0"/>
+                                    <f:selectItem itemLabel="50 km" itemValue="50.0"/>
+                                </p:selectOneMenu>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p:outputPanel id="resultadosPanel" styleClass="panel" style="margin:0;">
+                        <div style="font-weight:900; margin-bottom:1rem;"><i class="pi pi-list mr-2"></i>Resultados (#{buscaBean.resultados.size()})</div>
+
+                        <h:outputText value="Nenhum time encontrado com esses filtros." rendered="#{empty buscaBean.resultados}" styleClass="muted" style="display:block; text-align:center; padding: 2rem;" />
+
+<ui:repeat value="#{buscaBean.resultados}" var="time">
+                            <div class="item">
+                                <div class="badge"><i class="pi pi-shield" style="color:var(--warn)"></i></div>
+                                <div style="width:100%;">
+                                    <div style="font-weight:900; font-size:1.15rem; margin-bottom: 0.2rem;">#{time.nomeTime}</div>
+                                    
+                                    <div class="muted" style="font-size: 0.95rem;">
+                                        <i class="pi pi-calendar" style="color: var(--blue);"></i> <b style="color: white;">#{time.diaSemana}, #{time.dataExataFormatada}</b>
+                                    </div>
+                                    
+                                    <div class="muted" style="font-size: 0.85rem; margin-top: 0.2rem;">
+                                        <i class="pi pi-clock"></i> #{time.horario} &#160;•&#160; <i class="pi pi-map-marker"></i> #{time.distancia} km &#160;•&#160; <i class="pi pi-users"></i> #{time.categoria}
+                                    </div>
+                                    
+                                    <div class="mt-2 flex gap-2 flex-wrap">
+                                        <p:commandButton value="Convidar" action="#{buscaBean.convidar(time)}" update="@form" styleClass="btn" icon="pi pi-send" style="padding:.4rem .6rem; height: 36px;" />
+                                        <p:commandButton value="Negociar" styleClass="btn-sec" icon="pi pi-comments" style="padding:.4rem .6rem; height: 36px;" type="button" onclick="alert('Em breve!');"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </ui:repeat>
+
+                    </p:outputPanel>
+                </div>
+            </div>
+        </h:form>
+    </ui:define>
+</ui:composition>

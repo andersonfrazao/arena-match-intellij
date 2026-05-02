@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<ui:composition
+        xmlns="http://www.w3.org/1999/xhtml"
+        xmlns:h="jakarta.faces.html"
+        xmlns:ui="jakarta.faces.facelets"
+        xmlns:f="jakarta.faces.core"
+        xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <meta charset="UTF-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+        <!-- PrimeFlex e PrimeIcons (protótipo) -->
+        <h:outputStylesheet value="https://unpkg.com/primeflex@3.3.1/primeflex.min.css"/>
+        <h:outputStylesheet value="https://unpkg.com/primeicons@7.0.0/primeicons.css"/>
+
+        <!-- CSS global do projeto (agora no padrão JSF resources/) -->
+        <h:outputStylesheet library="css" name="app.css"/>
+
+        <title>
+            <ui:insert name="title">Arena Match</ui:insert>
+        </title>
+    </h:head>
+
+    <h:body>
+        <div class="pitchOverlay"></div>
+
+        <div class="am-container">
+            <div class="am-shell">
+                <div class="am-card">
+                    <div class="am-page">
+                        <ui:insert name="content"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </h:body>
+</ui:composition>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
+<h:head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title><ui:insert name="title">Arena Match</ui:insert></title>
+
+    <link rel="stylesheet" href="https://unpkg.com/primeflex@3.3.1/primeflex.min.css" />
+    <link rel="stylesheet" href="https://unpkg.com/primeicons@7.0.0/primeicons.css" />
+
+    <style>
+        /* O CSS GERAL DA TELA 5 - MANTIDO FIELMENTE */
+        :root{
+            --card: rgba(255,255,255,0.06); --stroke: rgba(255,255,255,0.10); --text: rgba(255,255,255,0.92); --muted: rgba(255,255,255,0.65);
+            --accent:#25d366; --warn:#ffcc00; --blue:#3aa0ff; --danger:#ff5a5f;
+        }
+        *{ box-sizing:border-box; }
+        body{
+            margin:0; font-family: system-ui, -apple-system, sans-serif; color: var(--text); min-height:100vh;
+            background: radial-gradient(1200px 700px at 10% 5%, rgba(58,160,255,0.10), transparent 60%),
+                        radial-gradient(1200px 700px at 90% 0%, rgba(37,211,102,0.12), transparent 60%),
+                        linear-gradient(180deg, rgba(7,11,18,0.96), rgba(7,11,18,0.98));
+        }
+
+        .wrap{ display:grid; grid-template-columns: 290px 1fr; gap: 1rem; padding: 1rem; padding-bottom: 5.2rem; max-width: 1280px; margin: 0 auto; }
+        .card{ background: var(--card); border: 1px solid var(--stroke); border-radius: 18px; backdrop-filter: blur(12px); box-shadow: 0 16px 50px rgba(0,0,0,0.35); overflow:hidden; }
+        
+        /* Sidebar Desktop */
+        .sidebar{ padding: 1rem; position: sticky; top: 1rem; height: calc(100vh - 2rem); display:flex; flex-direction:column; gap: .9rem; }
+        .brand{ display:flex; align-items:center; gap:.7rem; padding: .8rem .9rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.12); background: rgba(0,0,0,0.18); }
+        .logo{ width:40px; height:40px; border-radius: 14px; display:grid; place-items:center; background: rgba(37,211,102,0.16); border: 1px solid rgba(37,211,102,0.30); }
+        
+        .nav a{ display:flex; align-items:center; gap:.7rem; padding: .75rem .85rem; border-radius: 14px; color: rgba(255,255,255,0.85); text-decoration:none; border: 1px solid transparent; cursor:pointer; }
+        .nav a:hover{ background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.10); }
+        .nav a.active{ background: rgba(37,211,102,0.12); border-color: rgba(37,211,102,0.24); color: white; font-weight: bold; }
+        
+        .teamBox{ margin-top:auto; padding: .9rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.12); background: rgba(0,0,0,0.18); }
+        .pill{ padding:.35rem .6rem; border-radius: 999px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.82); font-size:.85rem; display:inline-flex; align-items:center; gap:.45rem; white-space: nowrap; }
+        .muted{ color: var(--muted); }
+
+        /* Bottom Nav Mobile */
+        .bottomNav{ display:none; position: fixed; left: 0; right: 0; bottom: 0; padding: .65rem .75rem; background: rgba(0,0,0,0.85); border-top: 1px solid rgba(255,255,255,0.10); backdrop-filter: blur(14px); z-index: 70; }
+        .bottomNav .bar{ max-width: 1280px; margin: 0 auto; display:flex; justify-content:space-between; gap: .5rem; }
+        .bItem{ flex:1; padding: .55rem .4rem; border-radius: 14px; border: 1px solid transparent; background: rgba(255,255,255,0.04); display:flex; flex-direction:column; align-items:center; gap:.25rem; font-size:.75rem; color: rgba(255,255,255,0.85); text-decoration: none;}
+        .bItem.active{ background: rgba(37,211,102,0.12); border-color: rgba(37,211,102,0.24); color: white; }
+
+        @media (max-width: 980px){
+            .wrap{ grid-template-columns: 1fr; }
+            .sidebar{ display:none; }
+            .bottomNav{ display:block; }
+        }
+
+        /* PrimeFaces Overrides Internos */
+        body .btn.ui-button { background: rgba(37,211,102,0.95); border: 1px solid rgba(37,211,102,0.35); color: #04110a; font-weight: 900; border-radius: 12px; }
+        body .btn-sec.ui-button { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: white; border-radius: 12px; font-weight: bold; }
+    </style>
+    <ui:insert name="head" />
+</h:head>
+
+<h:body>
+    <div class="wrap">
+        <aside class="sidebar card">
+            <div class="brand">
+                <div class="logo"><i class="pi pi-bolt"></i></div>
+                <div>
+                    <div style="font-weight:900; letter-spacing:.2px;">Arena Match</div>
+                    <div class="muted" style="font-size:.9rem;">Agende • Match</div>
+                </div>
+            </div>
+
+            <nav class="nav">
+                <h:link outcome="/agenda.xhtml" styleClass="#{activeMenu eq 'agenda' ? 'active' : ''}">
+                    <i class="pi pi-calendar"></i> Agenda
+                </h:link>
+                <h:link outcome="/buscar.xhtml" styleClass="#{activeMenu eq 'buscar' ? 'active' : ''}" >
+                    <i class="pi pi-search"></i> Buscar jogo
+                </h:link>
+                <h:link outcome="/agenda.xhtml" styleClass="#{activeMenu eq 'chat' ? 'active' : ''}" onclick="alert('Em construção'); return false;">
+                    <i class="pi pi-comments"></i> Chat
+                </h:link>
+                <h:link outcome="/agenda.xhtml" styleClass="#{activeMenu eq 'ligas' ? 'active' : ''}" onclick="alert('Em construção'); return false;">
+                    <i class="pi pi-flag"></i> Ligas
+                </h:link>
+                
+                <h:form style="margin-top: 1rem;">
+                    <p:commandLink action="/login.xhtml?faces-redirect=true" style="color: var(--danger); text-decoration: none; display: flex; align-items: center; gap: .7rem; padding: .75rem .85rem; border-radius: 14px;">
+                        <i class="pi pi-sign-out"></i> Sair
+                    </p:commandLink>
+                </h:form>
+            </nav>
+
+            <div class="teamBox">
+                <div class="flex align-items-center gap-2">
+                    <i class="pi pi-shield"></i>
+                    <span><b>Time:</b> #{sessionScope.timeLogado.nomeTime}</span>
+                </div>
+                <div class="mt-2 flex gap-2 flex-wrap">
+                    <span class="pill"><i class="pi pi-map-marker"></i> #{sessionScope.timeLogado.cidade}</span>
+                    <span class="pill"><i class="pi pi-users"></i> Resp: #{sessionScope.timeLogado.nomeResponsavel}</span>
+                </div>
+            </div>
+        </aside>
+
+        <main class="content card" style="padding: 0;">
+            <ui:insert name="content">
+                </ui:insert>
+        </main>
+    </div>
+
+    <div class="bottomNav">
+        <div class="bar">
+            <h:link outcome="/agenda.xhtml" styleClass="bItem #{activeMenu eq 'agenda' ? 'active' : ''}">
+                <i class="pi pi-calendar"></i><span>Agenda</span>
+            </h:link>
+            <h:link outcome="/buscar.xhtml" styleClass="bItem #{activeMenu eq 'buscar' ? 'active' : ''}" >
+                <i class="pi pi-search"></i><span>Buscar</span>
+            </h:link>
+            <h:link outcome="/agenda.xhtml" styleClass="bItem #{activeMenu eq 'chat' ? 'active' : ''}" onclick="return false;">
+                <i class="pi pi-comments"></i><span>Chat</span>
+            </h:link>
+            <h:link outcome="/agenda.xhtml" styleClass="bItem #{activeMenu eq 'ligas' ? 'active' : ''}" onclick="return false;">
+                <i class="pi pi-flag"></i><span>Ligas</span>
+            </h:link>
+        </div>
+    </div>
+</h:body>
+</html>

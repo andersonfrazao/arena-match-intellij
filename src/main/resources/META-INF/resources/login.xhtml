@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui">
+<h:head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Arena Match — Login</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/primeflex@3.3.1/primeflex.min.css" />
+    <link rel="stylesheet" href="https://unpkg.com/primeicons@7.0.0/primeicons.css" />
+
+    <style>
+        :root{
+            --card: rgba(255,255,255,0.07);
+            --stroke: rgba(255,255,255,0.12);
+            --text: rgba(255,255,255,0.92);
+            --muted: rgba(255,255,255,0.65);
+            --accent:#25d366;
+            --blue:#3aa0ff;
+            --warn:#ffcc00;
+        }
+
+        * { box-sizing:border-box; }
+        html, body{ height:100%; }
+        body{
+            margin:0;
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+            color: var(--text);
+            min-height:100vh;
+            background:
+                radial-gradient(900px 540px at 10% 10%, rgba(58,160,255,0.18), transparent 60%),
+                radial-gradient(900px 540px at 90% 0%, rgba(37,211,102,0.18), transparent 60%),
+                radial-gradient(700px 420px at 60% 90%, rgba(255,204,0,0.10), transparent 60%),
+                linear-gradient(180deg, #070b12 0%, #060914 100%);
+        }
+
+        .pitchOverlay{
+            position: fixed; inset: 0; pointer-events:none; opacity: .10;
+            background: linear-gradient(90deg, rgba(255,255,255,0.35) 1px, transparent 1px) 0 0/140px 140px,
+                        linear-gradient(0deg, rgba(255,255,255,0.35) 1px, transparent 1px) 0 0/140px 140px;
+            mask-image: radial-gradient(circle at 50% 40%, rgba(0,0,0,1), rgba(0,0,0,0.0) 70%);
+        }
+
+        .wrap{
+            min-height:100vh;
+            display:grid;
+            place-items:center;
+            padding: 1rem;
+        }
+
+        /* Centraliza e limita a largura do card único */
+        .shell{
+            width: min(480px, 100%);
+            display: block;
+        }
+
+        .card{
+            background: var(--card);
+            border: 1px solid var(--stroke);
+            border-radius: 18px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 16px 50px rgba(0,0,0,0.35);
+            overflow:hidden;
+        }
+
+        /* Classes internas */
+        .login{ padding: 1.5rem; display:flex; flex-direction:column; gap: 1rem; }
+        
+        .brand{
+            display:flex; align-items:center; gap:.75rem; padding: .65rem .95rem;
+            border-radius: 16px; border: 1px solid rgba(255,255,255,0.14);
+            background: rgba(0,0,0,0.18); width: fit-content; margin-bottom: .5rem;
+        }
+        .logo{
+            width:38px; height:38px; border-radius: 12px; display:grid; place-items:center;
+            background: rgba(37,211,102,0.16); border: 1px solid rgba(37,211,102,0.30);
+        }
+
+        .h1{ font-size: 1.4rem; font-weight: 950; letter-spacing: .2px; line-height: 1.15; margin: 0; }
+        .loginTitle{ font-weight: 950; letter-spacing:.2px; font-size: 1.15rem; margin: 0; }
+        .muted{ color: var(--muted); font-size: .92rem; }
+
+        .pillRow{ display:flex; gap:.5rem; flex-wrap:wrap; margin-top:.7rem; }
+        .pill{
+            padding:.3rem .6rem; border-radius: 999px; border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.84); font-size:.8rem;
+            display:inline-flex; align-items:center; gap:.4rem; white-space:nowrap;
+        }
+
+        /* Overrides PrimeFaces Inputs */
+        body .ui-inputfield {
+            width:100%; padding:.85rem .85rem; border-radius: 14px;
+            border: 1px solid rgba(255,255,255,0.12); background: rgba(0,0,0,0.20); color: var(--text);
+            box-shadow:none;
+        }
+        body .ui-inputfield:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(37,211,102,0.2); }
+
+        /* Overrides PrimeFaces Buttons */
+        body .btn.ui-button {
+            width:100%; padding:.6rem; border-radius: 14px; border: 1px solid rgba(37,211,102,0.35);
+            background: rgba(37,211,102,0.95); color:#04110a; font-weight: 950; min-height: 48px;
+        }
+        body .btn.secondary.ui-button {
+            background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.90);
+            border: 1px solid rgba(255,255,255,0.12); font-weight: 900;
+        }
+
+        .field label { display:block; font-size:.88rem; color: rgba(255,255,255,0.82); margin: 0 0 .35rem; }
+        .divider{ display:flex; align-items:center; gap:.7rem; color: rgba(255,255,255,0.55); font-size:.88rem; margin: .2rem 0; }
+        .divider::before, .divider::after{ content:""; height:1px; flex:1; background: rgba(255,255,255,0.10); }
+        
+        .row2{ display:flex; justify-content:space-between; align-items:center; gap:.8rem; flex-wrap:wrap; }
+        .link{ color: rgba(58,160,255,0.95); text-decoration:none; font-weight: 900; cursor:pointer; }
+    </style>
+</h:head>
+
+<h:body>
+    <div class="pitchOverlay"></div>
+
+    <div class="wrap">
+        <div class="shell">
+            
+            <h:form id="loginForm" class="card login">
+                <p:growl id="growl" showDetail="true" life="3000" />
+
+                <div class="brand">
+                    <div class="logo"><i class="pi pi-bolt"></i></div>
+                    <div>
+                        <div style="font-weight:950;">Arena Match</div>
+                        <div class="muted" style="font-size:.8rem;">Agendamento de jogos</div>
+                    </div>
+                </div>
+
+                <div>
+                    <h1 class="h1">Bem-vindo 👋</h1>
+                    <div class="muted" style="margin-top:.35rem;">
+                        Cadastre seu time, informe horários e encontre adversários disponíveis.
+                    </div>
+
+                    <div class="pillRow">
+                        <span class="pill"><i class="pi pi-calendar"></i> Agenda</span>
+                        <span class="pill"><i class="pi pi-comments"></i> Chat</span>
+                        <span class="pill"><i class="pi pi-flag"></i> Ligas</span>
+                    </div>
+                </div>
+
+                <div style="margin-top:.5rem;">
+                    <h2 class="loginTitle">Entrar</h2>
+                    <div class="muted" style="margin-top:.25rem;">Acesse sua conta do time.</div>
+                </div>
+
+                <div class="field">
+                    <label>E-mail *</label>
+                    <p:inputText id="email" value="#{loginBean.email}" placeholder="email@exemplo.com" required="true" />
+                </div>
+
+                <div class="field">
+                    <label>Senha *</label>
+                    <p:password id="pass" value="#{loginBean.senha}" placeholder="••••••••" toggleMask="true" required="true" />
+                </div>
+
+                <div class="row2">
+                    <div style="display:flex; gap:.5rem; align-items:center;">
+                        <p:selectBooleanCheckbox itemLabel="Lembrar-me" />
+                    </div>
+                    <a class="link" href="recuperarSenha.xhtml"><i class="pi pi-lock mr-2"></i>Esqueci a senha</a>
+                </div>
+
+                <p:commandButton value="Entrar" action="#{loginBean.fazerLogin}" update="@form growl" 
+                                 styleClass="btn" icon="pi pi-sign-in" iconPos="left" />
+
+                <div class="divider">ou</div>
+
+                <p:button value="Criar nova conta" outcome="cadastro.xhtml" 
+                          styleClass="btn secondary" icon="pi pi-user-plus" />
+
+                <div class="muted" style="font-size:.85rem; text-align:center;">
+                    Ao entrar, você verá sua agenda e convites.
+                </div>
+            </h:form>
+
+        </div>
+    </div>
+</h:body>
+</html>
