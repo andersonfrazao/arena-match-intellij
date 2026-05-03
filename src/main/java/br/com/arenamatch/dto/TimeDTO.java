@@ -1,6 +1,7 @@
 package br.com.arenamatch.dto;
 
 import lombok.Data;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +18,7 @@ public class TimeDTO {
     // Etapa 2
     private String nomeTime;
     private String mandoCampo; // VISITANTE ou MANDO
+    private BigDecimal taxaJogo;
     private String cep;
     private String logradouro;
     private String numero;

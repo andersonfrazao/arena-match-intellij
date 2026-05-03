@@ -1,6 +1,9 @@
 package br.com.arenamatch.beans;
 
 import java.io.Serializable;
+import java.time.Duration;
+import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +39,12 @@ public class CadastroBean implements Serializable {
     public void back() { if(step > 0) step--; }
     public void setStep(int s) { this.step = s; }
 
+    public void atualizarMandoCampo() {
+        if (!"MANDO".equalsIgnoreCase(timeDTO.getMandoCampo())) {
+            timeDTO.setTaxaJogo(null);
+        }
+    }
+
     public void buscarCep() {
         if(timeDTO.getCep() != null && timeDTO.getCep().length() >= 8) {
             TimeDTO dados = timeClient.buscarEnderecoPorCep(timeDTO.getCep());
@@ -49,6 +58,10 @@ public class CadastroBean implements Serializable {
     }
 
     public void adicionarHorario() {
+        if (!validarHorario()) {
+            return;
+        }
+
         DisponibilidadeDTO d = new DisponibilidadeDTO();
         d.setDiaSemana(novaDisp.getDiaSemana());
         d.setCategoria(novaDisp.getCategoria());
@@ -57,6 +70,54 @@ public class CadastroBean implements Serializable {
         
         timeDTO.getDisponibilidades().add(d);
         novaDisp = new DisponibilidadeDTO(); 
+    }
+
+    private boolean validarHorario() {
+        if (novaDisp.getDiaSemana() == null || novaDisp.getDiaSemana().isBlank()
+                || novaDisp.getCategoria() == null || novaDisp.getCategoria().isBlank()
+                || novaDisp.getHoraInicio() == null || novaDisp.getHoraInicio().isBlank()
+                || novaDisp.getHoraFim() == null || novaDisp.getHoraFim().isBlank()) {
+            adicionarMensagemErro("Preencha dia, categoria, inicio e fim do horario.");
+            return false;
+        }
+
+        LocalTime inicio;
+        LocalTime fim;
+        try {
+            inicio = LocalTime.parse(novaDisp.getHoraInicio());
+            fim = LocalTime.parse(novaDisp.getHoraFim());
+        } catch (DateTimeParseException e) {
+            adicionarMensagemErro("Informe horarios validos no formato HH:mm.");
+            return false;
+        }
+
+        if (!fim.isAfter(inicio)) {
+            adicionarMensagemErro("O horario final deve ser maior que o horario inicial.");
+            return false;
+        }
+
+        boolean horarioDuplicado = timeDTO.getDisponibilidades().stream()
+                .anyMatch(d -> d.getDiaSemana().equalsIgnoreCase(novaDisp.getDiaSemana())
+                        && d.getCategoria().equalsIgnoreCase(novaDisp.getCategoria()));
+        if (horarioDuplicado) {
+            adicionarMensagemErro("Ja existe um horario para este dia da semana e categoria.");
+            return false;
+        }
+
+        if ("MANDO".equalsIgnoreCase(timeDTO.getMandoCampo())) {
+            long minutos = Duration.between(inicio, fim).toMinutes();
+            if (minutos > 120) {
+                adicionarMensagemErro("Times mandantes podem cadastrar intervalos de no maximo 2 horas.");
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private void adicionarMensagemErro(String mensagem) {
+        FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Atencao", mensagem));
     }
 
     public void removerHorario(DisponibilidadeDTO item) {

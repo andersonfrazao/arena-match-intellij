@@ -248,8 +248,16 @@ body .btn.ui-button:hover {
 					                <f:selectItem itemLabel="Selecione" itemValue=""/>
 					                <f:selectItem itemLabel="Sou Visitante" itemValue="VISITANTE"/>
 					                <f:selectItem itemLabel="Tenho Mando" itemValue="MANDO"/>
+					                <p:ajax listener="#{cadastroBean.atualizarMandoCampo}" update="taxaJogoPanel"/>
 					            </p:selectOneMenu>
 					        </div>
+
+                            <h:panelGroup id="taxaJogoPanel" layout="block" styleClass="field">
+                                <h:panelGroup rendered="#{cadastroBean.timeDTO.mandoCampo == 'MANDO'}" layout="block">
+                                    <label>Taxa do jogo <span style="font-weight:normal; opacity:0.6;">(Opcional)</span></label>
+                                    <p:inputNumber value="#{cadastroBean.timeDTO.taxaJogo}" symbol="R$ " symbolPosition="p" decimalPlaces="2" minValue="0"/>
+                                </h:panelGroup>
+                            </h:panelGroup>
 					
 					        <div class="field">
 					            <label>CEP *</label>
@@ -335,7 +343,7 @@ body .btn.ui-button:hover {
                             </div>
                            </div> 
 						<p:commandButton value="Adicionar Horário" action="#{cadastroBean.adicionarHorario}" 
-						                 update="tabelaDisp @parent" 
+						                 update="tabelaDisp growl @parent" 
 						                 process="@parent"
 						                 styleClass="btn" 
 						                 icon="pi pi-plus"/>

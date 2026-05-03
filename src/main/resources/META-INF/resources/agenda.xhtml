@@ -17,7 +17,7 @@
             /* Grid do Calendário */
             .calendarHeader{ display:flex; align-items:center; justify-content:space-between; gap: 1rem; margin-bottom: .9rem; }
             .legend{ display:flex; gap:.5rem; flex-wrap:wrap; justify-content:flex-end; }
-            .gridWeek{ display:grid; grid-template-columns: repeat(7, 1fr); gap: .55rem; }
+            .gridWeek{ display:grid; grid-template-columns: repeat(5, 1fr); gap: .55rem; }
             
             .day-btn{ 
                 padding: .75rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.10); background: rgba(255,255,255,0.05); 
@@ -41,7 +41,9 @@
             .day-btn.has-invite { border-color: rgba(255,204,0,0.35); background: rgba(255,204,0,0.05); }
 
             .detailsHead{ display:flex; align-items:center; justify-content:space-between; gap: 1rem; margin-bottom: .8rem; }
+            .periodNav{ display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; justify-content:flex-end; }
             @media (max-width: 980px){ .gridWeek{ grid-template-columns: repeat(3, 1fr); } }
+            @media (max-width: 620px){ .gridWeek{ grid-template-columns: repeat(2, 1fr); } }
         </style>
     </ui:define>
 
@@ -63,9 +65,13 @@
                 <section class="panel">
                     <div class="calendarHeader">
                         <div>
-                            <div style="font-weight:900; font-size:1.05rem;">Próximos 7 Dias</div>
+                            <div style="font-weight:900; font-size:1.05rem;">Periodo de 15 dias</div>
+                            <div class="muted">#{agendaBean.tituloPeriodo}</div>
                         </div>
-                        <div class="legend">
+                        <div class="periodNav">
+                            <p:commandButton icon="pi pi-angle-left" action="#{agendaBean.periodoAnterior}" update="agendaForm" styleClass="btn-sec" title="Periodo anterior"/>
+                            <p:commandButton value="Hoje" action="#{agendaBean.periodoAtual}" update="agendaForm" styleClass="btn-sec"/>
+                            <p:commandButton icon="pi pi-angle-right" action="#{agendaBean.proximoPeriodo}" update="agendaForm" styleClass="btn-sec" title="Proximo periodo"/>
                             <span class="pill"><span class="dot game"></span> Jogo</span>
                             <span class="pill"><span class="dot invite"></span> Convite</span>
                         </div>

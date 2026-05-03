@@ -1,5 +1,6 @@
 package br.com.arenamatch.entity;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -52,6 +53,9 @@ public class Time {
 
     @Column(name = "mando_campo")
     private String mandoCampo; // "VISITANTE" ou "MANDO"
+
+    @Column(name = "taxa_jogo", precision = 10, scale = 2)
+    private BigDecimal taxaJogo;
 
     private String escudoUrl;
 

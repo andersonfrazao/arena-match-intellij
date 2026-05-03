@@ -1,0 +1,1 @@
+ALTER TABLE time ADD COLUMN taxa_jogo NUMERIC(10, 2);
