@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
@@ -67,7 +67,7 @@
                 <div class="logo"><i class="pi pi-bolt"></i></div>
                 <div>
                     <div style="font-weight:900; letter-spacing:.2px;">Arena Match</div>
-                    <div class="muted" style="font-size:.9rem;">Agende • Match</div>
+                    <div class="muted" style="font-size:.9rem;">Agende â€¢ Match</div>
                 </div>
             </div>
 
@@ -78,11 +78,8 @@
                 <h:link outcome="/buscar.xhtml" styleClass="#{activeMenu eq 'buscar' ? 'active' : ''}" >
                     <i class="pi pi-search"></i> Buscar jogo
                 </h:link>
-                <h:link outcome="/agenda.xhtml" styleClass="#{activeMenu eq 'chat' ? 'active' : ''}" onclick="alert('Em construção'); return false;">
+                <h:link outcome="/agenda.xhtml" styleClass="#{activeMenu eq 'chat' ? 'active' : ''}" onclick="alert('Em construÃ§Ã£o'); return false;">
                     <i class="pi pi-comments"></i> Chat
-                </h:link>
-                <h:link outcome="/agenda.xhtml" styleClass="#{activeMenu eq 'ligas' ? 'active' : ''}" onclick="alert('Em construção'); return false;">
-                    <i class="pi pi-flag"></i> Ligas
                 </h:link>
                 
                 <h:form style="margin-top: 1rem;">
@@ -120,9 +117,6 @@
             </h:link>
             <h:link outcome="/agenda.xhtml" styleClass="bItem #{activeMenu eq 'chat' ? 'active' : ''}" onclick="return false;">
                 <i class="pi pi-comments"></i><span>Chat</span>
-            </h:link>
-            <h:link outcome="/agenda.xhtml" styleClass="bItem #{activeMenu eq 'ligas' ? 'active' : ''}" onclick="return false;">
-                <i class="pi pi-flag"></i><span>Ligas</span>
             </h:link>
         </div>
     </div>

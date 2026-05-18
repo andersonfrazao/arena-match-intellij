@@ -80,7 +80,6 @@ public class MatchService {
                         .horaFim(disp.getHoraFim())
                         .distancia(distFormatada.doubleValue())
                         .mandoCampo(outro.getMandoCampo())
-                        .ligaVinculada(null) // Etapa futura
                         .dataExata(dataExata)
                         .dataExataFormatada(dataExata.format(DATA_FORMATTER))
                         .build());

@@ -18,8 +18,6 @@ public class ResultadoBuscaDTO {
     private String horaFim;
     private Double distancia; // Ex: 6.2 (km)
     private String mandoCampo;
-    private String ligaVinculada; // Por enquanto pode ser nulo/mock
- // ... campos anteriores
     private LocalDate dataExata;
     private String dataExataFormatada;
     
