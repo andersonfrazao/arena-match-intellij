@@ -327,9 +327,9 @@ body .btn.ui-button:hover {
                                 <div class="field">
                                     <label>Categoria</label>
                                     <p:selectOneMenu value="#{cadastroBean.novaDisp.categoria}">
-                                        <f:selectItem itemLabel="Esporte" itemValue="Esporte"/>
-                                        <f:selectItem itemLabel="Veterano" itemValue="Veterano"/>
-                                        <f:selectItem itemLabel="Master" itemValue="Master"/>
+                                        <f:selectItem itemLabel="Selecione" itemValue="#{null}" noSelectionOption="true"/>
+                                        <f:selectItems value="#{cadastroBean.categorias}" var="categoria"
+                                                       itemLabel="#{categoria.descricao}" itemValue="#{categoria}"/>
                                     </p:selectOneMenu>
                                 </div>
                                 <div class="field">
@@ -356,7 +356,7 @@ body .btn.ui-button:hover {
 						    </p:column>
 						    
 						    <p:column headerText="Categoria">
-						        <h:outputText value="#{d.categoria}"/>
+						        <h:outputText value="#{d.categoria.descricao}"/>
 						    </p:column>
 						    
 						    <p:column headerText="Horário">

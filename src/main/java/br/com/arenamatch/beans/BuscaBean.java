@@ -18,6 +18,7 @@ import br.com.arenamatch.dto.BuscaFiltroDTO;
 import br.com.arenamatch.dto.JogoDTO;
 import br.com.arenamatch.dto.ResultadoBuscaDTO;
 import br.com.arenamatch.entity.Time;
+import br.com.arenamatch.enums.Categoria;
 import jakarta.annotation.PostConstruct;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
@@ -37,6 +38,7 @@ public class BuscaBean implements Serializable {
     private BuscaFiltroDTO filtro;
     private List<ResultadoBuscaDTO> resultados;
     private Time timeLogado;
+    private final Categoria[] categorias = Categoria.values();
 
     @PostConstruct
     public void init() {

@@ -2,6 +2,7 @@ package br.com.arenamatch.dto;
 
 import java.time.LocalDate;
 
+import br.com.arenamatch.enums.Categoria;
 import lombok.Builder;
 import lombok.Data;
 
@@ -10,7 +11,7 @@ import lombok.Data;
 public class ResultadoBuscaDTO {
     private Long idTime;
     private String nomeTime;
-    private String categoria;
+    private Categoria categoria;
     private String diaSemana;
     private String horario; // Ex: 12:00 - 14:00
     private Double distancia; // Ex: 6.2 (km)

@@ -13,6 +13,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import br.com.arenamatch.client.TimeClient;
 import br.com.arenamatch.dto.DisponibilidadeDTO;
 import br.com.arenamatch.dto.TimeDTO;
+import br.com.arenamatch.enums.Categoria;
 import jakarta.annotation.PostConstruct;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
@@ -29,6 +30,7 @@ public class CadastroBean implements Serializable {
     @Getter @Setter private TimeDTO timeDTO = new TimeDTO();
     @Getter @Setter private int step = 0;
     @Getter @Setter private DisponibilidadeDTO novaDisp = new DisponibilidadeDTO();
+    @Getter private final Categoria[] categorias = Categoria.values();
 
     @PostConstruct
     public void init() {
@@ -74,7 +76,7 @@ public class CadastroBean implements Serializable {
 
     private boolean validarHorario() {
         if (novaDisp.getDiaSemana() == null || novaDisp.getDiaSemana().isBlank()
-                || novaDisp.getCategoria() == null || novaDisp.getCategoria().isBlank()
+                || novaDisp.getCategoria() == null
                 || novaDisp.getHoraInicio() == null || novaDisp.getHoraInicio().isBlank()
                 || novaDisp.getHoraFim() == null || novaDisp.getHoraFim().isBlank()) {
             adicionarMensagemErro("Preencha dia, categoria, inicio e fim do horario.");
@@ -98,7 +100,7 @@ public class CadastroBean implements Serializable {
 
         boolean horarioDuplicado = timeDTO.getDisponibilidades().stream()
                 .anyMatch(d -> d.getDiaSemana().equalsIgnoreCase(novaDisp.getDiaSemana())
-                        && d.getCategoria().equalsIgnoreCase(novaDisp.getCategoria()));
+                        && d.getCategoria() == novaDisp.getCategoria());
         if (horarioDuplicado) {
             adicionarMensagemErro("Ja existe um horario para este dia da semana e categoria.");
             return false;

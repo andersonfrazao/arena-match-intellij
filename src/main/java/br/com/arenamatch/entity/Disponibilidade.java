@@ -2,7 +2,10 @@ package br.com.arenamatch.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import br.com.arenamatch.enums.Categoria;
+import br.com.arenamatch.enums.CategoriaConverter;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -44,7 +47,8 @@ public class Disponibilidade {
     private String horaFim;
 
     @Column(nullable = false)
-    private String categoria;
+    @Convert(converter = CategoriaConverter.class)
+    private Categoria categoria;
     
 
     

@@ -93,13 +93,13 @@ public class TimeService {
         Set<String> diaCategoria = new HashSet<>();
         for (var d : dto.getDisponibilidades()) {
             if (d.getDiaSemana() == null || d.getDiaSemana().isBlank()
-                    || d.getCategoria() == null || d.getCategoria().isBlank()
+                    || d.getCategoria() == null
                     || d.getHoraInicio() == null || d.getHoraInicio().isBlank()
                     || d.getHoraFim() == null || d.getHoraFim().isBlank()) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Disponibilidade incompleta.");
             }
 
-            String chave = d.getDiaSemana().trim().toLowerCase() + "|" + d.getCategoria().trim().toLowerCase();
+            String chave = d.getDiaSemana().trim().toLowerCase() + "|" + d.getCategoria().name().toLowerCase();
             if (!diaCategoria.add(chave)) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nao e permitido cadastrar mais de um horario para o mesmo dia e categoria.");
             }

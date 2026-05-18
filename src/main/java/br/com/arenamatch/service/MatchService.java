@@ -57,8 +57,8 @@ public class MatchService {
                 }
 
                 // Filtro de Categoria
-                if (filtro.getCategoria() != null && !filtro.getCategoria().isBlank() && !filtro.getCategoria().equals("Qualquer")) {
-                    if (!disp.getCategoria().equalsIgnoreCase(filtro.getCategoria())) continue;
+                if (filtro.getCategoria() != null) {
+                    if (disp.getCategoria() != filtro.getCategoria()) continue;
                 }
 
                 // Arredonda distância para 1 casa decimal
