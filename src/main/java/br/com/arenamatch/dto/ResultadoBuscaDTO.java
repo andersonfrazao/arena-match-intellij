@@ -14,6 +14,8 @@ public class ResultadoBuscaDTO {
     private Categoria categoria;
     private String diaSemana;
     private String horario; // Ex: 12:00 - 14:00
+    private String horaInicio;
+    private String horaFim;
     private Double distancia; // Ex: 6.2 (km)
     private String mandoCampo;
     private String ligaVinculada; // Por enquanto pode ser nulo/mock

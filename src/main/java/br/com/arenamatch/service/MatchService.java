@@ -2,6 +2,10 @@ package br.com.arenamatch.service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 public class MatchService {
 
     private final TimeRepository timeRepository;
+    private static final DateTimeFormatter DATA_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     public List<ResultadoBuscaDTO> buscarAdversarios(Long idTimeBuscando, BuscaFiltroDTO filtro) {
         Time timeBuscando = timeRepository.findById(idTimeBuscando)
@@ -63,6 +68,7 @@ public class MatchService {
 
                 // Arredonda distância para 1 casa decimal
                 BigDecimal distFormatada = new BigDecimal(distancia).setScale(1, RoundingMode.HALF_UP);
+                LocalDate dataExata = calcularProximaData(disp.getDiaSemana());
 
                 resultados.add(ResultadoBuscaDTO.builder()
                         .idTime(outro.getId())
@@ -70,9 +76,13 @@ public class MatchService {
                         .categoria(disp.getCategoria())
                         .diaSemana(disp.getDiaSemana())
                         .horario(disp.getHoraInicio() + " - " + disp.getHoraFim())
+                        .horaInicio(disp.getHoraInicio())
+                        .horaFim(disp.getHoraFim())
                         .distancia(distFormatada.doubleValue())
                         .mandoCampo(outro.getMandoCampo())
                         .ligaVinculada(null) // Etapa futura
+                        .dataExata(dataExata)
+                        .dataExataFormatada(dataExata.format(DATA_FORMATTER))
                         .build());
             }
         }
@@ -81,5 +91,22 @@ public class MatchService {
         resultados.sort((r1, r2) -> Double.compare(r1.getDistancia(), r2.getDistancia()));
 
         return resultados;
+    }
+
+    private LocalDate calcularProximaData(String diaSemanaPt) {
+        return LocalDate.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.of(obterDiaSemana(diaSemanaPt))));
+    }
+
+    private int obterDiaSemana(String diaSemanaPt) {
+        return switch (diaSemanaPt.toLowerCase()) {
+            case "domingo" -> 7;
+            case "segunda" -> 1;
+            case "terça", "terca" -> 2;
+            case "quarta" -> 3;
+            case "quinta" -> 4;
+            case "sexta" -> 5;
+            case "sábado", "sabado" -> 6;
+            default -> throw new IllegalArgumentException("Dia da semana invalido: " + diaSemanaPt);
+        };
     }
 }

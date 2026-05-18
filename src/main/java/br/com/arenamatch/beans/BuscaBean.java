@@ -1,10 +1,6 @@
 package br.com.arenamatch.beans;
 
 import java.io.Serializable;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +28,7 @@ public class BuscaBean implements Serializable {
 
     @Autowired
     private MatchClient matchClient;
-    @Autowired 
+    @Autowired
     private JogoClient jogoClient;
 
     private BuscaFiltroDTO filtro;
@@ -45,22 +41,13 @@ public class BuscaBean implements Serializable {
         filtro = new BuscaFiltroDTO();
         resultados = new ArrayList<>();
         timeLogado = (Time) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("timeLogado");
-        
-        // Pesquisa inicial automática com padrão 10km
+
         pesquisar();
     }
 
     public void pesquisar() {
         if (timeLogado != null) {
             resultados = matchClient.buscar(timeLogado.getId(), filtro);
-            
-            // --- NOVIDADE: Calcula a data exata para cada resultado exibido ---
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-            for (ResultadoBuscaDTO res : resultados) {
-                LocalDate data = calcularProximaData(res.getDiaSemana());
-                res.setDataExata(data);
-                res.setDataExataFormatada(data.format(formatter));
-            }
         }
     }
 
@@ -68,47 +55,28 @@ public class BuscaBean implements Serializable {
         filtro = new BuscaFiltroDTO();
         pesquisar();
     }
-    
+
     public void convidar(ResultadoBuscaDTO timeAlvo) {
         try {
             JogoDTO convite = new JogoDTO();
             convite.setIdMandante(timeLogado.getId());
             convite.setIdVisitante(timeAlvo.getIdTime());
-            
-            // Agora usamos a data exata que já foi calculada!
             convite.setDataJogo(timeAlvo.getDataExata());
-            
-            String[] horas = timeAlvo.getHorario().split(" - ");
-            convite.setHoraInicio(horas[0].trim());
-            convite.setHoraFim(horas[1].trim());
+            convite.setHoraInicio(timeAlvo.getHoraInicio());
+            convite.setHoraFim(timeAlvo.getHoraFim());
 
             jogoClient.enviarConvite(convite);
 
-            FacesContext.getCurrentInstance().addMessage(null, 
-                new FacesMessage(FacesMessage.SEVERITY_INFO, "Sucesso", "Convite enviado para " + timeAlvo.getNomeTime() + " no dia " + timeAlvo.getDataExataFormatada()));
-                
-        } catch (HttpClientErrorException.Conflict e) {
-            // Captura o erro 409 (Conflito) que criamos no backend para convites duplicados
-            FacesContext.getCurrentInstance().addMessage(null, 
-                new FacesMessage(FacesMessage.SEVERITY_WARN, "Atenção", "Você já enviou um convite para este time nesta data."));
-        } catch (Exception e) {
-            FacesContext.getCurrentInstance().addMessage(null, 
-                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erro", "Falha ao enviar convite."));
-        }
-    }
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Sucesso",
+                            "Convite enviado para " + timeAlvo.getNomeTime() + " no dia " + timeAlvo.getDataExataFormatada()));
 
-    // <-- MÉTODO AUXILIAR NOVO
-    private LocalDate calcularProximaData(String diaSemanaPt) {
-        int targetDay = 1;
-        switch (diaSemanaPt.toLowerCase()) {
-            case "domingo": targetDay = 7; break;
-            case "segunda": targetDay = 1; break;
-            case "terça":   targetDay = 2; break;
-            case "quarta":  targetDay = 3; break;
-            case "quinta":  targetDay = 4; break;
-            case "sexta":   targetDay = 5; break;
-            case "sábado":  targetDay = 6; break;
+        } catch (HttpClientErrorException.Conflict e) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Atencao", "Voce ja enviou um convite para este time nesta data."));
+        } catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erro", "Falha ao enviar convite."));
         }
-        return LocalDate.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.of(targetDay)));
     }
 }

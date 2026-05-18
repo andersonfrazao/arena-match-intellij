@@ -1,5 +1,7 @@
 package br.com.arenamatch.service;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -10,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import br.com.arenamatch.dto.JogoDTO;
+import br.com.arenamatch.entity.Disponibilidade;
 import br.com.arenamatch.entity.Jogo;
 import br.com.arenamatch.entity.Time;
 import br.com.arenamatch.enums.StatusJogo;
@@ -24,24 +27,24 @@ public class JogoService {
     private final JogoRepository jogoRepository;
     private final TimeRepository timeRepository;
 
- // Importe: import org.springframework.web.server.ResponseStatusException;
-    // Importe: import org.springframework.http.HttpStatus;
-    // Importe: import java.util.Arrays;
-
     @Transactional
     public JogoDTO enviarConvite(JogoDTO dto) {
-        // --- NOVA VALIDAÇÃO: Bloqueia duplicidade ---
+        validarDadosConvite(dto);
+
         boolean jaExiste = jogoRepository.existsByTimeMandanteIdAndTimeVisitanteIdAndDataJogoAndStatusIn(
-                dto.getIdMandante(), dto.getIdVisitante(), dto.getDataJogo(), 
+                dto.getIdMandante(), dto.getIdVisitante(), dto.getDataJogo(),
                 Arrays.asList(StatusJogo.PENDENTE, StatusJogo.CONFIRMADO));
 
         if (jaExiste) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Você já enviou um convite para este time nesta data.");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Voce ja enviou um convite para este time nesta data.");
         }
-        // --------------------------------------------
 
-        Time mandante = timeRepository.findById(dto.getIdMandante()).orElseThrow(() -> new RuntimeException("Mandante não encontrado"));
-        Time visitante = timeRepository.findById(dto.getIdVisitante()).orElseThrow(() -> new RuntimeException("Visitante não encontrado"));
+        Time mandante = timeRepository.findById(dto.getIdMandante())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Mandante nao encontrado."));
+        Time visitante = timeRepository.findById(dto.getIdVisitante())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Visitante nao encontrado."));
+
+        validarDisponibilidadeVisitante(visitante, dto);
 
         Jogo jogo = Jogo.builder()
                 .timeMandante(mandante)
@@ -58,8 +61,10 @@ public class JogoService {
     @Transactional
     public JogoDTO responderConvite(Long jogoId, StatusJogo novoStatus) {
         Jogo jogo = jogoRepository.findById(jogoId)
-                .orElseThrow(() -> new RuntimeException("Jogo não encontrado"));
-        
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Jogo nao encontrado."));
+
+        validarRespostaConvite(jogo, novoStatus);
+
         jogo.setStatus(novoStatus);
         return converterParaDTO(jogoRepository.save(jogo));
     }
@@ -68,6 +73,61 @@ public class JogoService {
         return jogoRepository.findJogosByTimeId(timeId).stream()
                 .map(this::converterParaDTO)
                 .collect(Collectors.toList());
+    }
+
+    private void validarDadosConvite(JogoDTO dto) {
+        if (dto.getIdMandante() == null || dto.getIdVisitante() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mandante e visitante sao obrigatorios.");
+        }
+        if (dto.getIdMandante().equals(dto.getIdVisitante())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nao e permitido convidar o proprio time.");
+        }
+        if (dto.getDataJogo() == null || dto.getHoraInicio() == null || dto.getHoraInicio().isBlank()
+                || dto.getHoraFim() == null || dto.getHoraFim().isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Data e horario do jogo sao obrigatorios.");
+        }
+        if (dto.getDataJogo().isBefore(LocalDate.now())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nao e permitido enviar convite para data passada.");
+        }
+    }
+
+    private void validarDisponibilidadeVisitante(Time visitante, JogoDTO dto) {
+        DayOfWeek diaJogo = dto.getDataJogo().getDayOfWeek();
+        boolean disponibilidadeEncontrada = visitante.getDisponibilidades() != null
+                && visitante.getDisponibilidades().stream()
+                        .anyMatch(disponibilidade -> disponibilidadeConfere(disponibilidade, diaJogo, dto));
+
+        if (!disponibilidadeEncontrada) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "O visitante nao possui disponibilidade para a data e horario informados.");
+        }
+    }
+
+    private boolean disponibilidadeConfere(Disponibilidade disponibilidade, DayOfWeek diaJogo, JogoDTO dto) {
+        return obterDiaSemana(disponibilidade.getDiaSemana()) == diaJogo.getValue()
+                && disponibilidade.getHoraInicio().equals(dto.getHoraInicio())
+                && disponibilidade.getHoraFim().equals(dto.getHoraFim());
+    }
+
+    private int obterDiaSemana(String diaSemanaPt) {
+        return switch (diaSemanaPt.toLowerCase()) {
+            case "domingo" -> 7;
+            case "segunda" -> 1;
+            case "terça", "terca" -> 2;
+            case "quarta" -> 3;
+            case "quinta" -> 4;
+            case "sexta" -> 5;
+            case "sábado", "sabado" -> 6;
+            default -> throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Dia da semana invalido: " + diaSemanaPt);
+        };
+    }
+
+    private void validarRespostaConvite(Jogo jogo, StatusJogo novoStatus) {
+        if (novoStatus != StatusJogo.CONFIRMADO && novoStatus != StatusJogo.RECUSADO) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Status invalido para resposta de convite.");
+        }
+        if (jogo.getStatus() != StatusJogo.PENDENTE) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Apenas convites pendentes podem ser respondidos.");
+        }
     }
 
     private JogoDTO converterParaDTO(Jogo jogo) {

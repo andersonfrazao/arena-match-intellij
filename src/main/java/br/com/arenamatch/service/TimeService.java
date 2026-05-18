@@ -39,6 +39,8 @@ public class TimeService {
 
     @Transactional
     public Time salvar(TimeDTO dto) {
+        validarSenha(dto);
+
         if (timeRepository.existsByEmail(dto.getEmail())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "E-mail ja cadastrado no sistema.");
         }
@@ -83,6 +85,15 @@ public class TimeService {
         }
 
         return timeRepository.save(time);
+    }
+
+    private void validarSenha(TimeDTO dto) {
+        if (dto.getSenha() == null || dto.getSenha().isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Senha obrigatoria.");
+        }
+        if (!dto.getSenha().equals(dto.getConfirmarSenha())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A senha e a confirmacao nao conferem.");
+        }
     }
 
     private void validarDisponibilidades(TimeDTO dto) {
