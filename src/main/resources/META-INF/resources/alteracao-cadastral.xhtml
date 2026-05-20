@@ -1,0 +1,207 @@
+<ui:composition template="/WEB-INF/templates/template-privado.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui">
+
+    <ui:param name="activeMenu" value="alteracao-cadastral" />
+
+    <ui:define name="head">
+        <style>
+            .topbar{ padding: 1rem 1.2rem; display:flex; align-items:center; justify-content:space-between; gap: 1rem; border-bottom: 1px solid rgba(255,255,255,0.08); background: rgba(0,0,0,0.12); }
+            .title .h{ font-size:1.15rem; font-weight: 900; letter-spacing:.2px; }
+            .body-content{ padding: 1.1rem 1.2rem 1.2rem; display:grid; gap: 1rem; }
+            .panel{ padding: 1rem; border-radius: 18px; border: 1px solid rgba(255,255,255,0.10); background: rgba(0,0,0,0.18); }
+            .panelHead{ display:flex; align-items:center; justify-content:space-between; gap: 1rem; margin-bottom: .9rem; }
+            .panelTitle{ font-weight:900; font-size:1.05rem; }
+            .grid2{ display:grid; grid-template-columns: 1fr 1fr; gap: .9rem; }
+            .field label{ display:block; font-size:.88rem; color: rgba(255,255,255,0.82); margin: 0 0 .35rem; }
+            .readonlyBox{ min-height: 43px; display:flex; align-items:center; padding:.65rem; border-radius:14px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.86); }
+            .hint{ font-size:.88rem; color:rgba(255,255,255,0.78); border-left:3px solid var(--warn); padding:.55rem .75rem; border-radius:6px; background:rgba(255,204,0,0.08); margin-bottom:.85rem; }
+            body .ui-inputfield, body .ui-selectonemenu { width:100%; background: rgba(0,0,0,0.20); border: 1px solid rgba(255,255,255,0.12); color: white; border-radius: 14px; padding: .65rem; }
+            body .ui-selectonemenu-label { color: white; }
+            body .ui-selectonemenu-panel { background: #1a1a1a; border: 1px solid #333; }
+            body .ui-datatable thead th { background: rgba(255,255,255,0.12) !important; color: rgba(255,255,255,0.9) !important; border: 1px solid rgba(255,255,255,0.12); }
+            body .ui-datatable tbody td { background: rgba(0,0,0,0.2) !important; color: rgba(255,255,255,0.85) !important; border: 1px solid rgba(255,255,255,0.08); }
+            .actions{ display:flex; justify-content:flex-end; gap:.75rem; flex-wrap:wrap; }
+            @media (max-width: 760px){ .grid2{ grid-template-columns: 1fr; } .panelHead{ align-items:flex-start; flex-direction:column; } }
+        </style>
+    </ui:define>
+
+    <ui:define name="content">
+        <h:form id="alteracaoForm">
+            <p:growl id="growl" showDetail="true" life="5000"/>
+
+            <div class="topbar">
+                <div class="title">
+                    <div class="h">Alteracao cadastral</div>
+                    <div class="muted">Revise os dados do responsavel, time, local e agenda.</div>
+                </div>
+                <p:commandButton value="Salvar alteracoes" action="#{alteracaoCadastroBean.salvar}" update="@form" icon="pi pi-check" styleClass="btn"/>
+            </div>
+
+            <div class="body-content">
+                <section class="panel">
+                    <div class="panelHead">
+                        <div>
+                            <div class="panelTitle">Responsavel</div>
+                            <div class="muted">Somente o WhatsApp pode ser alterado.</div>
+                        </div>
+                    </div>
+                    <div class="grid2">
+                        <div class="field">
+                            <label>Nome responsavel</label>
+                            <div class="readonlyBox">#{alteracaoCadastroBean.timeDTO.nomeResponsavel}</div>
+                        </div>
+                        <div class="field">
+                            <label>CPF</label>
+                            <div class="readonlyBox">#{alteracaoCadastroBean.cpfOculto}</div>
+                        </div>
+                        <div class="field">
+                            <label>E-mail</label>
+                            <div class="readonlyBox">#{alteracaoCadastroBean.timeDTO.email}</div>
+                        </div>
+                        <div class="field">
+                            <label>WhatsApp</label>
+                            <p:inputMask mask="(99) 99999-9999" value="#{alteracaoCadastroBean.timeDTO.whatsapp}"/>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="panel">
+                    <div class="panelHead">
+                        <div>
+                            <div class="panelTitle">Time e local</div>
+                            <div class="muted">Mando de campo fica apenas para visualizacao.</div>
+                        </div>
+                    </div>
+
+                    <h:panelGroup rendered="#{alteracaoCadastroBean.localBloqueado}" layout="block" styleClass="hint">
+                        <i class="pi pi-lock mr-1"></i>
+                        Ainda existe jogo a ser realizado. O local so podera ser alterado depois que o jogo acontecer.
+                    </h:panelGroup>
+
+                    <div class="grid2">
+                        <div class="field">
+                            <label>Nome do time</label>
+                            <div class="readonlyBox">#{alteracaoCadastroBean.timeDTO.nomeTime}</div>
+                        </div>
+                        <div class="field">
+                            <label>Mando de campo</label>
+                            <div class="readonlyBox">#{alteracaoCadastroBean.timeDTO.mandoCampo == 'MANDO' ? 'Tenho Mando' : 'Sou Visitante'}</div>
+                        </div>
+
+                        <h:panelGroup rendered="#{alteracaoCadastroBean.timeDTO.mandoCampo == 'MANDO'}" layout="block" styleClass="field">
+                            <label>Taxa do jogo</label>
+                            <p:inputNumber value="#{alteracaoCadastroBean.timeDTO.taxaJogo}" symbol="R$ " symbolPosition="p" decimalPlaces="2" minValue="0"/>
+                        </h:panelGroup>
+
+                        <div class="field">
+                            <label>CEP</label>
+                            <div class="ui-inputgroup">
+                                <p:inputMask id="cep" mask="99999-999" value="#{alteracaoCadastroBean.timeDTO.cep}"
+                                             readonly="#{alteracaoCadastroBean.localBloqueado}"
+                                             required="true" requiredMessage="O CEP e obrigatorio."/>
+                                <p:commandButton icon="pi pi-search"
+                                                 actionListener="#{alteracaoCadastroBean.buscarCep}"
+                                                 process="@this cep"
+                                                 update="logradouro cidade uf regiao growl"
+                                                 disabled="#{alteracaoCadastroBean.localBloqueado}"
+                                                 styleClass="btn-sec"
+                                                 title="Pesquisar endereco"/>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label>Endereco</label>
+                            <p:inputText id="logradouro" value="#{alteracaoCadastroBean.timeDTO.logradouro}" readonly="true"/>
+                        </div>
+                        <div class="field">
+                            <label>Numero</label>
+                            <p:inputText value="#{alteracaoCadastroBean.timeDTO.numero}" readonly="#{alteracaoCadastroBean.localBloqueado}"/>
+                        </div>
+                        <div class="field">
+                            <label>Cidade</label>
+                            <p:inputText id="cidade" value="#{alteracaoCadastroBean.timeDTO.cidade}" readonly="true"/>
+                        </div>
+                        <div class="field">
+                            <label>UF</label>
+                            <p:inputText id="uf" value="#{alteracaoCadastroBean.timeDTO.uf}" readonly="true"/>
+                        </div>
+                        <div class="field">
+                            <label>Regiao</label>
+                            <p:inputText id="regiao" value="#{alteracaoCadastroBean.timeDTO.regiao}" readonly="true"/>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="panel">
+                    <div class="panelHead">
+                        <div>
+                            <div class="panelTitle">Agenda</div>
+                            <div class="muted">Os horarios seguem as mesmas regras do cadastro.</div>
+                        </div>
+                    </div>
+
+                    <h:panelGroup id="agendaEditor" layout="block" styleClass="grid2">
+                        <div class="field">
+                            <label>Dia</label>
+                            <p:selectOneMenu value="#{alteracaoCadastroBean.novaDisp.diaSemana}">
+                                <f:selectItem itemLabel="Sabado" itemValue="Sabado"/>
+                                <f:selectItem itemLabel="Domingo" itemValue="Domingo"/>
+                                <f:selectItem itemLabel="Segunda" itemValue="Segunda"/>
+                                <f:selectItem itemLabel="Terca" itemValue="Terca"/>
+                                <f:selectItem itemLabel="Quarta" itemValue="Quarta"/>
+                                <f:selectItem itemLabel="Quinta" itemValue="Quinta"/>
+                                <f:selectItem itemLabel="Sexta" itemValue="Sexta"/>
+                            </p:selectOneMenu>
+                        </div>
+                        <div class="field">
+                            <label>Categoria</label>
+                            <p:selectOneMenu value="#{alteracaoCadastroBean.novaDisp.categoria}">
+                                <f:selectItem itemLabel="Selecione" itemValue="#{null}" noSelectionOption="true"/>
+                                <f:selectItems value="#{alteracaoCadastroBean.categorias}" var="categoria"
+                                               itemLabel="#{categoria.descricao}" itemValue="#{categoria}"/>
+                            </p:selectOneMenu>
+                        </div>
+                        <div class="field">
+                            <label>Inicio</label>
+                            <p:inputMask mask="99:99" value="#{alteracaoCadastroBean.novaDisp.horaInicio}"/>
+                        </div>
+                        <div class="field">
+                            <label>Fim</label>
+                            <p:inputMask mask="99:99" value="#{alteracaoCadastroBean.novaDisp.horaFim}"/>
+                        </div>
+                    </h:panelGroup>
+
+                    <div class="actions" style="margin-top:.85rem;">
+                        <p:commandButton value="Adicionar horario" action="#{alteracaoCadastroBean.adicionarHorario}" update="agendaEditor tabelaDisp growl" process="agendaEditor" styleClass="btn" icon="pi pi-plus"/>
+                    </div>
+
+                    <p:dataTable id="tabelaDisp" value="#{alteracaoCadastroBean.timeDTO.disponibilidades}" var="d"
+                                 style="margin-top:1rem;" emptyMessage="Nenhum horario cadastrado." reflow="true">
+                        <p:column headerText="Dia">
+                            <h:outputText value="#{d.diaSemana}"/>
+                        </p:column>
+                        <p:column headerText="Categoria">
+                            <h:outputText value="#{d.categoria.descricao}"/>
+                        </p:column>
+                        <p:column headerText="Horario">
+                            <h:outputText value="#{d.horaInicio} - #{d.horaFim}"/>
+                        </p:column>
+                        <p:column style="width:70px; text-align:center;">
+                            <p:commandButton icon="pi pi-trash" action="#{alteracaoCadastroBean.removerHorario(d)}"
+                                             update="tabelaDisp" process="@this"
+                                             styleClass="ui-button-flat ui-button-danger" title="Remover"/>
+                        </p:column>
+                    </p:dataTable>
+                </section>
+
+                <div class="actions">
+                    <p:commandButton value="Salvar alteracoes" action="#{alteracaoCadastroBean.salvar}" update="@form" icon="pi pi-check" styleClass="btn"/>
+                </div>
+            </div>
+        </h:form>
+    </ui:define>
+</ui:composition>

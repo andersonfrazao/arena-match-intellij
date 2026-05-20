@@ -78,6 +78,9 @@
                 <h:link outcome="/buscar.xhtml" styleClass="#{activeMenu eq 'buscar' ? 'active' : ''}" >
                     <i class="pi pi-search"></i> Buscar jogo
                 </h:link>
+                <h:link outcome="/alteracao-cadastral.xhtml" styleClass="#{activeMenu eq 'alteracao-cadastral' ? 'active' : ''}">
+                    <i class="pi pi-user-edit"></i> Cadastro
+                </h:link>
                 <h:link outcome="/agenda.xhtml" styleClass="#{activeMenu eq 'chat' ? 'active' : ''}" onclick="alert('Em construÃ§Ã£o'); return false;">
                     <i class="pi pi-comments"></i> Chat
                 </h:link>
@@ -114,6 +117,9 @@
             </h:link>
             <h:link outcome="/buscar.xhtml" styleClass="bItem #{activeMenu eq 'buscar' ? 'active' : ''}" >
                 <i class="pi pi-search"></i><span>Buscar</span>
+            </h:link>
+            <h:link outcome="/alteracao-cadastral.xhtml" styleClass="bItem #{activeMenu eq 'alteracao-cadastral' ? 'active' : ''}">
+                <i class="pi pi-user-edit"></i><span>Cadastro</span>
             </h:link>
             <h:link outcome="/agenda.xhtml" styleClass="bItem #{activeMenu eq 'chat' ? 'active' : ''}" onclick="return false;">
                 <i class="pi pi-comments"></i><span>Chat</span>

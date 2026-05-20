@@ -23,4 +23,14 @@ public class TimeController {
     public ResponseEntity<Time> criarTime(@RequestBody TimeDTO dto) {
         return ResponseEntity.ok(timeService.salvar(dto));
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<TimeDTO> buscarTime(@PathVariable Long id) {
+        return ResponseEntity.ok(timeService.buscarPorId(id));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Time> atualizarTime(@PathVariable Long id, @RequestBody TimeDTO dto) {
+        return ResponseEntity.ok(timeService.atualizar(id, dto));
+    }
 }

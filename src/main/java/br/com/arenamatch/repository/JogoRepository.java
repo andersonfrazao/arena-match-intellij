@@ -24,4 +24,10 @@ public interface JogoRepository extends JpaRepository<Jogo, Long> {
 
     boolean existsByTimeMandanteIdAndTimeVisitanteIdAndDataJogoAndStatusIn(
             Long idMandante, Long idVisitante, LocalDate dataJogo, List<StatusJogo> status);
+
+    @Query("SELECT COUNT(j) > 0 FROM Jogo j WHERE (j.timeMandante.id = :timeId OR j.timeVisitante.id = :timeId) AND j.dataJogo >= :dataReferencia AND j.status IN :status")
+    boolean existsJogoNaoRealizadoDoTime(
+            @Param("timeId") Long timeId,
+            @Param("dataReferencia") LocalDate dataReferencia,
+            @Param("status") List<StatusJogo> status);
 }

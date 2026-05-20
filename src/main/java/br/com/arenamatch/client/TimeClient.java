@@ -18,4 +18,12 @@ public class TimeClient {
     public Time salvarTime(TimeDTO dto) {
         return restClient.post().uri("/api/times").body(dto).retrieve().body(Time.class);
     }
+
+    public TimeDTO buscarPorId(Long id) {
+        return restClient.get().uri("/api/times/" + id).retrieve().body(TimeDTO.class);
+    }
+
+    public Time atualizarTime(Long id, TimeDTO dto) {
+        return restClient.put().uri("/api/times/" + id).body(dto).retrieve().body(Time.class);
+    }
 }

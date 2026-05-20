@@ -76,7 +76,7 @@ public class Time {
     private LocalDateTime dataCadastro;
     
     // ... dentro da classe Time
-    @OneToMany(mappedBy = "time", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "time", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     private List<Disponibilidade> disponibilidades;
 
     @PrePersist

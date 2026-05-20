@@ -7,6 +7,8 @@ import java.util.List;
 
 @Data
 public class TimeDTO {
+    private Long id;
+
     // Etapa 1
     private String nomeResponsavel;
     private String cpf;
