@@ -38,6 +38,7 @@
         .nav a.active{ background: rgba(37,211,102,0.12); border-color: rgba(37,211,102,0.24); color: white; font-weight: bold; }
         
         .teamBox{ margin-top:auto; padding: .9rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.12); background: rgba(0,0,0,0.18); }
+        .mobileTeamBox{ display:none; padding: .9rem; }
         .pill{ padding:.35rem .6rem; border-radius: 999px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.82); font-size:.85rem; display:inline-flex; align-items:center; gap:.45rem; white-space: nowrap; }
         .muted{ color: var(--muted); }
 
@@ -50,6 +51,7 @@
         @media (max-width: 980px){
             .wrap{ grid-template-columns: 1fr; }
             .sidebar{ display:none; }
+            .mobileTeamBox{ display:block; }
             .bottomNav{ display:block; }
         }
 
@@ -100,9 +102,22 @@
                 <div class="mt-2 flex gap-2 flex-wrap">
                     <span class="pill"><i class="pi pi-map-marker"></i> #{sessionScope.timeLogado.cidade}</span>
                     <span class="pill"><i class="pi pi-users"></i> Resp: #{sessionScope.timeLogado.nomeResponsavel}</span>
+                    <span class="pill"><i class="pi pi-flag"></i> #{sessionScope.timeLogado.mandoCampo == 'MANDO' ? 'Mandante' : 'Visitante'}</span>
                 </div>
             </div>
         </aside>
+
+        <section class="mobileTeamBox card">
+            <div class="flex align-items-center gap-2">
+                <i class="pi pi-shield"></i>
+                <span><b>Time:</b> #{sessionScope.timeLogado.nomeTime}</span>
+            </div>
+            <div class="mt-2 flex gap-2 flex-wrap">
+                <span class="pill"><i class="pi pi-map-marker"></i> #{sessionScope.timeLogado.cidade}</span>
+                <span class="pill"><i class="pi pi-users"></i> Resp: #{sessionScope.timeLogado.nomeResponsavel}</span>
+                <span class="pill"><i class="pi pi-flag"></i> #{sessionScope.timeLogado.mandoCampo == 'MANDO' ? 'Mandante' : 'Visitante'}</span>
+            </div>
+        </section>
 
         <main class="content card" style="padding: 0;">
             <ui:insert name="content">

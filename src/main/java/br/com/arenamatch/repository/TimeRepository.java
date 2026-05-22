@@ -17,7 +17,7 @@ public interface TimeRepository extends JpaRepository<Time, Long> {
     boolean existsByCpf(String cpf);
     
 
-    @Query("SELECT t FROM Time t JOIN FETCH t.disponibilidades "
+    @Query("SELECT DISTINCT t FROM Time t JOIN FETCH t.disponibilidades "
             + "WHERE t.id <> :idTimeLogado AND t.statusConta = br.com.arenamatch.enums.StatusConta.ATIVO")
     List<Time> findAllOutrosTimesComDisponibilidade(@Param("idTimeLogado") Long idTimeLogado);
 }

@@ -59,13 +59,20 @@ public class BuscaBean implements Serializable {
     public void convidar(ResultadoBuscaDTO timeAlvo) {
         try {
             JogoDTO convite = new JogoDTO();
-            convite.setIdMandante(timeLogado.getId());
-            convite.setIdVisitante(timeAlvo.getIdTime());
+            if (temMando(timeLogado)) {
+                convite.setIdMandante(timeLogado.getId());
+                convite.setIdVisitante(timeAlvo.getIdTime());
+            } else {
+                convite.setIdMandante(timeAlvo.getIdTime());
+                convite.setIdVisitante(timeLogado.getId());
+            }
+            convite.setIdSolicitante(timeLogado.getId());
             convite.setDataJogo(timeAlvo.getDataExata());
             convite.setHoraInicio(timeAlvo.getHoraInicio());
             convite.setHoraFim(timeAlvo.getHoraFim());
 
             jogoClient.enviarConvite(convite);
+            pesquisar();
 
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO, "Sucesso",
@@ -78,5 +85,9 @@ public class BuscaBean implements Serializable {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erro", "Falha ao enviar convite."));
         }
+    }
+
+    private boolean temMando(Time time) {
+        return "MANDO".equalsIgnoreCase(time.getMandoCampo());
     }
 }

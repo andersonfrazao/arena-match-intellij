@@ -132,17 +132,17 @@
                                 <div style="display:flex; align-items:center; gap:.8rem;">
                                     <i class="pi pi-send" style="color:var(--warn); font-size:1.5rem;"></i>
                                     <div style="text-align:left;">
-                                        <div style="font-weight:bold;">Convite: #{jogo.nomeMandante} convidou #{jogo.nomeVisitante}</div>
+                                        <div style="font-weight:bold;">Convite: #{jogo.nomeSolicitante} convidou #{jogo.idSolicitante == jogo.idMandante ? jogo.nomeVisitante : jogo.nomeMandante}</div>
                                         <div class="muted" style="font-size:.85rem;">#{jogo.horaInicio} às #{jogo.horaFim}</div>
                                     </div>
                                 </div>
 
-                                <h:panelGroup rendered="#{jogo.idVisitante == sessionScope.timeLogado.id}" style="margin-top:0.5rem; display:flex; gap:0.5rem;">
+                                <h:panelGroup rendered="#{jogo.idSolicitante != sessionScope.timeLogado.id}" style="margin-top:0.5rem; display:flex; gap:0.5rem;">
                                     <p:commandButton value="Aceitar" action="#{agendaBean.responderConvite(jogo, 'CONFIRMADO')}" update="agendaForm" styleClass="ui-button-success" icon="pi pi-check" />
                                     <p:commandButton value="Recusar" action="#{agendaBean.responderConvite(jogo, 'RECUSADO')}" update="agendaForm" styleClass="ui-button-danger ui-button-flat" icon="pi pi-times" />
                                 </h:panelGroup>
 
-                                <h:panelGroup rendered="#{jogo.idMandante == sessionScope.timeLogado.id}">
+                                <h:panelGroup rendered="#{jogo.idSolicitante == sessionScope.timeLogado.id}">
                                     <span style="font-size:0.85rem; color:var(--warn);"><i class="pi pi-clock"></i> A aguardar resposta do adversário...</span>
                                 </h:panelGroup>
 

@@ -3,6 +3,8 @@ package br.com.arenamatch.service;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -51,9 +53,6 @@ public class TimeService {
 
         disponibilidadeService.validar(dto);
 
-        String enderecoBusca = dto.getLogradouro() + ", " + dto.getNumero() + " - " + dto.getCidade();
-        double[] coords = googleMaps.getLatLong(enderecoBusca);
-
         Time time = Time.builder()
                 .nomeResponsavel(dto.getNomeResponsavel())
                 .cpf(dto.getCpf())
@@ -70,10 +69,9 @@ public class TimeService {
                 .cidade(dto.getCidade())
                 .uf(dto.getUf())
                 .regiao(dto.getRegiao())
-                .latitude(coords[0])
-                .longitude(coords[1])
                 .build();
 
+        preencherCoordenadas(time, dto);
         time.setDisponibilidades(disponibilidadeService.criarPara(time, dto));
 
         return timeRepository.save(time);
@@ -116,10 +114,7 @@ public class TimeService {
             time.setUf(dto.getUf());
             time.setRegiao(dto.getRegiao());
 
-            String enderecoBusca = dto.getLogradouro() + ", " + dto.getNumero() + " - " + dto.getCidade();
-            double[] coords = googleMaps.getLatLong(enderecoBusca);
-            time.setLatitude(coords[0]);
-            time.setLongitude(coords[1]);
+            preencherCoordenadas(time, dto);
         }
 
         disponibilidadeService.substituirDe(time, dto);
@@ -173,6 +168,25 @@ public class TimeService {
 
     private String normalizar(String valor) {
         return valor == null ? "" : valor.trim();
+    }
+
+    private void preencherCoordenadas(Time time, TimeDTO dto) {
+        if (dto.getLatitude() != null && dto.getLongitude() != null) {
+            time.setLatitude(dto.getLatitude());
+            time.setLongitude(dto.getLongitude());
+            return;
+        }
+
+        double[] coords = googleMaps.getLatLongPorEndereco(montarEnderecoBusca(dto), dto.getCep());
+        time.setLatitude(coords[0]);
+        time.setLongitude(coords[1]);
+    }
+
+    private String montarEnderecoBusca(TimeDTO dto) {
+        return Stream.of(dto.getLogradouro(), dto.getNumero(), dto.getCidade(), dto.getUf(), dto.getCep(), "Brazil")
+                .filter(valor -> valor != null && !valor.isBlank())
+                .map(String::trim)
+                .collect(Collectors.joining(", "));
     }
 
     private TimeDTO converterParaDTO(Time time) {

@@ -18,15 +18,17 @@ public class Jogo {
     @SequenceGenerator(name = "jogo_seq_gen", sequenceName = "jogo_seq", allocationSize = 1)
     private Long id;
 
-    // Quem enviou o convite
     @ManyToOne
     @JoinColumn(name = "time_mandante_id", nullable = false)
     private Time timeMandante;
 
-    // Quem recebe o convite
     @ManyToOne
     @JoinColumn(name = "time_visitante_id", nullable = false)
     private Time timeVisitante;
+
+    @ManyToOne
+    @JoinColumn(name = "time_solicitante_id", nullable = false)
+    private Time timeSolicitante;
 
     @Column(name = "data_jogo", nullable = false)
     private LocalDate dataJogo;

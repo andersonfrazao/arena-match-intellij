@@ -5,6 +5,7 @@ import java.math.RoundingMode;
 import java.text.Normalizer;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 
@@ -30,7 +31,8 @@ public class MatchResultadoService {
                 adversario.getLatitude(), adversario.getLongitude());
     }
 
-    public ResultadoBuscaDTO criarResultado(Time adversario, Disponibilidade disponibilidade, double distancia) {
+    public ResultadoBuscaDTO criarResultado(Time adversario, Time mandante, Disponibilidade disponibilidade,
+            String horaInicio, String horaFim, double distancia, boolean convitePendente) {
         LocalDate dataExata = calcularProximaData(disponibilidade.getDiaSemana());
 
         return ResultadoBuscaDTO.builder()
@@ -38,14 +40,35 @@ public class MatchResultadoService {
                 .nomeTime(adversario.getNomeTime())
                 .categoria(disponibilidade.getCategoria())
                 .diaSemana(disponibilidade.getDiaSemana())
-                .horario(disponibilidade.getHoraInicio() + " - " + disponibilidade.getHoraFim())
-                .horaInicio(disponibilidade.getHoraInicio())
-                .horaFim(disponibilidade.getHoraFim())
+                .horario(horaInicio + " - " + horaFim)
+                .horaInicio(horaInicio)
+                .horaFim(horaFim)
                 .distancia(formatarDistancia(distancia))
                 .mandoCampo(adversario.getMandoCampo())
+                .taxaJogo(mandante.getTaxaJogo())
+                .enderecoJogo(formatarEndereco(mandante))
                 .dataExata(dataExata)
                 .dataExataFormatada(dataExata.format(DATA_FORMATTER))
+                .convitePendente(convitePendente)
                 .build();
+    }
+
+    public boolean horariosCoincidem(Disponibilidade primeira, Disponibilidade segunda) {
+        LocalTime inicio = LocalTime.parse(maiorHoraInicio(primeira, segunda));
+        LocalTime fim = LocalTime.parse(menorHoraFim(primeira, segunda));
+        return fim.isAfter(inicio);
+    }
+
+    public String maiorHoraInicio(Disponibilidade primeira, Disponibilidade segunda) {
+        LocalTime primeiraHora = LocalTime.parse(primeira.getHoraInicio());
+        LocalTime segundaHora = LocalTime.parse(segunda.getHoraInicio());
+        return primeiraHora.isAfter(segundaHora) ? primeira.getHoraInicio() : segunda.getHoraInicio();
+    }
+
+    public String menorHoraFim(Disponibilidade primeira, Disponibilidade segunda) {
+        LocalTime primeiraHora = LocalTime.parse(primeira.getHoraFim());
+        LocalTime segundaHora = LocalTime.parse(segunda.getHoraFim());
+        return primeiraHora.isBefore(segundaHora) ? primeira.getHoraFim() : segunda.getHoraFim();
     }
 
     private double formatarDistancia(double distancia) {
@@ -56,6 +79,25 @@ public class MatchResultadoService {
 
     private LocalDate calcularProximaData(String diaSemanaPt) {
         return LocalDate.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.of(obterDiaSemana(diaSemanaPt))));
+    }
+
+    private String formatarEndereco(Time mandante) {
+        StringBuilder endereco = new StringBuilder();
+        adicionarParteEndereco(endereco, mandante.getLogradouro());
+        adicionarParteEndereco(endereco, mandante.getNumero());
+        adicionarParteEndereco(endereco, mandante.getCidade());
+        adicionarParteEndereco(endereco, mandante.getUf());
+        return endereco.toString();
+    }
+
+    private void adicionarParteEndereco(StringBuilder endereco, String valor) {
+        if (valor == null || valor.isBlank()) {
+            return;
+        }
+        if (endereco.length() > 0) {
+            endereco.append(", ");
+        }
+        endereco.append(valor.trim());
     }
 
     private int obterDiaSemana(String diaSemanaPt) {

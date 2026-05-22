@@ -42,12 +42,15 @@ public class JogoService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Mandante nao encontrado."));
         Time visitante = timeRepository.findById(dto.getIdVisitante())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Visitante nao encontrado."));
+        Time solicitante = timeRepository.findById(dto.getIdSolicitante())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Time solicitante nao encontrado."));
 
-        jogoValidacaoService.validarDisponibilidadeVisitante(visitante, dto);
+        jogoValidacaoService.validarDisponibilidades(mandante, visitante, dto);
 
         Jogo jogo = Jogo.builder()
                 .timeMandante(mandante)
                 .timeVisitante(visitante)
+                .timeSolicitante(solicitante)
                 .dataJogo(dto.getDataJogo())
                 .horaInicio(dto.getHoraInicio())
                 .horaFim(dto.getHoraFim())

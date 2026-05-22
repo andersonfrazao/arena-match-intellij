@@ -24,6 +24,12 @@ public class JogoValidacaoService {
         if (dto.getIdMandante().equals(dto.getIdVisitante())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nao e permitido convidar o proprio time.");
         }
+        if (dto.getIdSolicitante() == null
+                || (!dto.getIdSolicitante().equals(dto.getIdMandante())
+                        && !dto.getIdSolicitante().equals(dto.getIdVisitante()))) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "O time solicitante precisa participar do convite.");
+        }
         if (dto.getDataJogo() == null || dto.getHoraInicio() == null || dto.getHoraInicio().isBlank()
                 || dto.getHoraFim() == null || dto.getHoraFim().isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Data e horario do jogo sao obrigatorios.");
@@ -33,15 +39,20 @@ public class JogoValidacaoService {
         }
     }
 
-    public void validarDisponibilidadeVisitante(Time visitante, JogoDTO dto) {
+    public void validarDisponibilidades(Time mandante, Time visitante, JogoDTO dto) {
+        validarDisponibilidade("O mandante", mandante, dto);
+        validarDisponibilidade("O visitante", visitante, dto);
+    }
+
+    private void validarDisponibilidade(String papel, Time time, JogoDTO dto) {
         DayOfWeek diaJogo = dto.getDataJogo().getDayOfWeek();
-        boolean disponibilidadeEncontrada = visitante.getDisponibilidades() != null
-                && visitante.getDisponibilidades().stream()
+        boolean disponibilidadeEncontrada = time.getDisponibilidades() != null
+                && time.getDisponibilidades().stream()
                         .anyMatch(disponibilidade -> disponibilidadeConfere(disponibilidade, diaJogo, dto));
 
         if (!disponibilidadeEncontrada) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "O visitante nao possui disponibilidade para a data e horario informados.");
+                    papel + " nao possui disponibilidade para a data e horario informados.");
         }
     }
 
@@ -56,8 +67,8 @@ public class JogoValidacaoService {
 
     private boolean disponibilidadeConfere(Disponibilidade disponibilidade, DayOfWeek diaJogo, JogoDTO dto) {
         return obterDiaSemana(disponibilidade.getDiaSemana()) == diaJogo.getValue()
-                && disponibilidade.getHoraInicio().equals(dto.getHoraInicio())
-                && disponibilidade.getHoraFim().equals(dto.getHoraFim());
+                && dto.getHoraInicio().compareTo(disponibilidade.getHoraInicio()) >= 0
+                && dto.getHoraFim().compareTo(disponibilidade.getHoraFim()) <= 0;
     }
 
     private int obterDiaSemana(String diaSemanaPt) {

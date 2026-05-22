@@ -1,5 +1,6 @@
 package br.com.arenamatch.dto;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import br.com.arenamatch.enums.Categoria;
@@ -13,12 +14,15 @@ public class ResultadoBuscaDTO {
     private String nomeTime;
     private Categoria categoria;
     private String diaSemana;
-    private String horario; // Ex: 12:00 - 14:00
+    private String horario;
     private String horaInicio;
     private String horaFim;
-    private Double distancia; // Ex: 6.2 (km)
+    private Double distancia;
     private String mandoCampo;
+    private BigDecimal taxaJogo;
+    private String enderecoJogo;
     private LocalDate dataExata;
     private String dataExataFormatada;
-    
+    private boolean convitePendente;
+    private boolean jogoIndisponivel;
 }

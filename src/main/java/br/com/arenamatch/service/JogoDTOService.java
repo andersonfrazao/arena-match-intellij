@@ -15,6 +15,8 @@ public class JogoDTOService {
         dto.setNomeMandante(jogo.getTimeMandante().getNomeTime());
         dto.setIdVisitante(jogo.getTimeVisitante().getId());
         dto.setNomeVisitante(jogo.getTimeVisitante().getNomeTime());
+        dto.setIdSolicitante(jogo.getTimeSolicitante().getId());
+        dto.setNomeSolicitante(jogo.getTimeSolicitante().getNomeTime());
         dto.setDataJogo(jogo.getDataJogo());
         dto.setHoraInicio(jogo.getHoraInicio());
         dto.setHoraFim(jogo.getHoraFim());
