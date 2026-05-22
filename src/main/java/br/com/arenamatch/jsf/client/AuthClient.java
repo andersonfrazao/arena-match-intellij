@@ -1,4 +1,4 @@
-package br.com.arenamatch.client;
+package br.com.arenamatch.jsf.client;
 
 import br.com.arenamatch.dto.LoginDTO;
 import br.com.arenamatch.entity.Time; // Ou UsuarioDTO se preferir criar um DTO de resposta

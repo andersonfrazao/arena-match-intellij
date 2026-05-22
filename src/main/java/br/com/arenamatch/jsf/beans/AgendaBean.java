@@ -1,4 +1,4 @@
-package br.com.arenamatch.beans;
+package br.com.arenamatch.jsf.beans;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import br.com.arenamatch.client.JogoClient;
+import br.com.arenamatch.jsf.client.JogoClient;
 import br.com.arenamatch.dto.JogoDTO;
 import br.com.arenamatch.entity.Time;
 import br.com.arenamatch.enums.StatusJogo;

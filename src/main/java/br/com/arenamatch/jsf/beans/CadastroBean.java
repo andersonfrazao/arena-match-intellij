@@ -1,6 +1,7 @@
-package br.com.arenamatch.beans;
+package br.com.arenamatch.jsf.beans;
 
 import java.io.Serializable;
+import java.text.Normalizer;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
@@ -10,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 
-import br.com.arenamatch.client.TimeClient;
+import br.com.arenamatch.jsf.client.TimeClient;
 import br.com.arenamatch.dto.DisponibilidadeDTO;
 import br.com.arenamatch.dto.TimeDTO;
 import br.com.arenamatch.enums.Categoria;
@@ -99,7 +100,7 @@ public class CadastroBean implements Serializable {
         }
 
         boolean horarioDuplicado = timeDTO.getDisponibilidades().stream()
-                .anyMatch(d -> d.getDiaSemana().equalsIgnoreCase(novaDisp.getDiaSemana())
+                .anyMatch(d -> mesmoDiaSemana(d.getDiaSemana(), novaDisp.getDiaSemana())
                         && d.getCategoria() == novaDisp.getCategoria());
         if (horarioDuplicado) {
             adicionarMensagemErro("Ja existe um horario para este dia da semana e categoria.");
@@ -115,6 +116,20 @@ public class CadastroBean implements Serializable {
         }
 
         return true;
+    }
+
+    private boolean mesmoDiaSemana(String primeiroDia, String segundoDia) {
+        return normalizarDiaSemana(primeiroDia).equals(normalizarDiaSemana(segundoDia));
+    }
+
+    private String normalizarDiaSemana(String diaSemana) {
+        if (diaSemana == null) {
+            return "";
+        }
+
+        return Normalizer.normalize(diaSemana.trim(), Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "")
+                .toLowerCase();
     }
 
     private void adicionarMensagemErro(String mensagem) {

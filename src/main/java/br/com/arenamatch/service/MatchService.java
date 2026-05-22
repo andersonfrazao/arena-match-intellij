@@ -1,11 +1,5 @@
 package br.com.arenamatch.service;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,7 +10,6 @@ import br.com.arenamatch.dto.ResultadoBuscaDTO;
 import br.com.arenamatch.entity.Disponibilidade;
 import br.com.arenamatch.entity.Time;
 import br.com.arenamatch.repository.TimeRepository;
-import br.com.arenamatch.util.GeoUtil;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -24,88 +17,35 @@ import lombok.RequiredArgsConstructor;
 public class MatchService {
 
     private final TimeRepository timeRepository;
-    private static final DateTimeFormatter DATA_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private final MatchFiltroService matchFiltroService;
+    private final MatchResultadoService matchResultadoService;
 
     public List<ResultadoBuscaDTO> buscarAdversarios(Long idTimeBuscando, BuscaFiltroDTO filtro) {
         Time timeBuscando = timeRepository.findById(idTimeBuscando)
-                .orElseThrow(() -> new RuntimeException("Time logado não encontrado"));
+                .orElseThrow(() -> new RuntimeException("Time logado nao encontrado"));
 
         List<Time> outrosTimes = timeRepository.findAllOutrosTimesComDisponibilidade(idTimeBuscando);
         List<ResultadoBuscaDTO> resultados = new ArrayList<>();
 
-        for (Time outro : outrosTimes) {
-            // Calcula a distância real
-            double distancia = 0.0;
-            if (timeBuscando.getLatitude() != null && outro.getLatitude() != null) {
-                distancia = GeoUtil.calcularDistancia(
-                        timeBuscando.getLatitude(), timeBuscando.getLongitude(),
-                        outro.getLatitude(), outro.getLongitude());
-            }
-
-            // Filtro de Distância
-            if (distancia > filtro.getDistanciaKm()) {
+        for (Time adversario : outrosTimes) {
+            double distancia = matchResultadoService.calcularDistancia(timeBuscando, adversario);
+            if (!matchFiltroService.timeAtende(adversario, distancia, filtro)) {
                 continue;
             }
 
-            // Filtro de Cidade (se informado)
-            if (filtro.getCidade() != null && !filtro.getCidade().isBlank()) {
-                if (outro.getCidade() == null || !outro.getCidade().equalsIgnoreCase(filtro.getCidade())) {
-                    continue;
-                }
-            }
-
-            // Avalia as disponibilidades desse time
-            for (Disponibilidade disp : outro.getDisponibilidades()) {
-                // Filtro de Dia da Semana
-                if (filtro.getDiaSemana() != null && !filtro.getDiaSemana().isBlank() && !filtro.getDiaSemana().equals("Qualquer")) {
-                    if (!disp.getDiaSemana().equalsIgnoreCase(filtro.getDiaSemana())) continue;
-                }
-
-                // Filtro de Categoria
-                if (filtro.getCategoria() != null) {
-                    if (disp.getCategoria() != filtro.getCategoria()) continue;
-                }
-
-                // Arredonda distância para 1 casa decimal
-                BigDecimal distFormatada = new BigDecimal(distancia).setScale(1, RoundingMode.HALF_UP);
-                LocalDate dataExata = calcularProximaData(disp.getDiaSemana());
-
-                resultados.add(ResultadoBuscaDTO.builder()
-                        .idTime(outro.getId())
-                        .nomeTime(outro.getNomeTime())
-                        .categoria(disp.getCategoria())
-                        .diaSemana(disp.getDiaSemana())
-                        .horario(disp.getHoraInicio() + " - " + disp.getHoraFim())
-                        .horaInicio(disp.getHoraInicio())
-                        .horaFim(disp.getHoraFim())
-                        .distancia(distFormatada.doubleValue())
-                        .mandoCampo(outro.getMandoCampo())
-                        .dataExata(dataExata)
-                        .dataExataFormatada(dataExata.format(DATA_FORMATTER))
-                        .build());
-            }
+            adicionarDisponibilidadesValidas(resultados, adversario, distancia, filtro);
         }
 
-        // Ordena pelos mais próximos
-        resultados.sort((r1, r2) -> Double.compare(r1.getDistancia(), r2.getDistancia()));
-
+        resultados.sort((primeiro, segundo) -> Double.compare(primeiro.getDistancia(), segundo.getDistancia()));
         return resultados;
     }
 
-    private LocalDate calcularProximaData(String diaSemanaPt) {
-        return LocalDate.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.of(obterDiaSemana(diaSemanaPt))));
-    }
-
-    private int obterDiaSemana(String diaSemanaPt) {
-        return switch (diaSemanaPt.toLowerCase()) {
-            case "domingo" -> 7;
-            case "segunda" -> 1;
-            case "terça", "terca" -> 2;
-            case "quarta" -> 3;
-            case "quinta" -> 4;
-            case "sexta" -> 5;
-            case "sábado", "sabado" -> 6;
-            default -> throw new IllegalArgumentException("Dia da semana invalido: " + diaSemanaPt);
-        };
+    private void adicionarDisponibilidadesValidas(List<ResultadoBuscaDTO> resultados, Time adversario,
+            double distancia, BuscaFiltroDTO filtro) {
+        for (Disponibilidade disponibilidade : adversario.getDisponibilidades()) {
+            if (matchFiltroService.disponibilidadeAtende(disponibilidade, filtro)) {
+                resultados.add(matchResultadoService.criarResultado(adversario, disponibilidade, distancia));
+            }
+        }
     }
 }

@@ -3,7 +3,7 @@ package br.com.arenamatch.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import br.com.arenamatch.enums.Categoria;
-import br.com.arenamatch.enums.CategoriaConverter;
+import br.com.arenamatch.util.CategoriaConverter;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;

@@ -1,6 +1,6 @@
-package br.com.arenamatch.beans;
+package br.com.arenamatch.jsf.beans;
 
-import br.com.arenamatch.client.AuthClient;
+import br.com.arenamatch.jsf.client.AuthClient;
 import br.com.arenamatch.dto.LoginDTO;
 import br.com.arenamatch.entity.Time;
 import jakarta.faces.application.FacesMessage;

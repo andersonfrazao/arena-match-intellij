@@ -1,15 +1,8 @@
 package br.com.arenamatch.service;
 
-import java.time.Duration;
 import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import br.com.arenamatch.dto.TimeDTO;
-import br.com.arenamatch.entity.Disponibilidade;
 import br.com.arenamatch.entity.Time;
 import br.com.arenamatch.integration.BrasilApiService;
 import br.com.arenamatch.integration.GoogleMapsService;
@@ -36,6 +28,7 @@ public class TimeService {
     private final GoogleMapsService googleMaps;
     private final PasswordEncoder passwordEncoder;
     private final JogoRepository jogoRepository;
+    private final DisponibilidadeService disponibilidadeService;
 
     public TimeDTO buscarCep(String cep) {
         TimeDTO dto = new TimeDTO();
@@ -55,7 +48,7 @@ public class TimeService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "CPF ja cadastrado no sistema.");
         }
 
-        validarDisponibilidades(dto);
+        disponibilidadeService.validar(dto);
 
         String enderecoBusca = dto.getLogradouro() + ", " + dto.getNumero() + " - " + dto.getCidade();
         double[] coords = googleMaps.getLatLong(enderecoBusca);
@@ -80,17 +73,7 @@ public class TimeService {
                 .longitude(coords[1])
                 .build();
 
-        if (dto.getDisponibilidades() != null) {
-            time.setDisponibilidades(dto.getDisponibilidades().stream().map(d ->
-                Disponibilidade.builder()
-                    .time(time)
-                    .diaSemana(d.getDiaSemana())
-                    .categoria(d.getCategoria())
-                    .horaInicio(d.getHoraInicio())
-                    .horaFim(d.getHoraFim())
-                    .build()
-            ).collect(Collectors.toList()));
-        }
+        time.setDisponibilidades(disponibilidadeService.criarPara(time, dto));
 
         return timeRepository.save(time);
     }
@@ -107,7 +90,7 @@ public class TimeService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Time nao encontrado."));
 
         validarCamposProtegidos(time, dto);
-        validarDisponibilidades(dto);
+        disponibilidadeService.validar(dto);
 
         boolean localAlterado = localAlterado(time, dto);
         if (localAlterado && existeJogoNaoRealizado(id)) {
@@ -138,22 +121,7 @@ public class TimeService {
             time.setLongitude(coords[1]);
         }
 
-        if (time.getDisponibilidades() == null) {
-            time.setDisponibilidades(new ArrayList<>());
-        } else {
-            time.getDisponibilidades().clear();
-        }
-
-        if (dto.getDisponibilidades() != null) {
-            dto.getDisponibilidades().forEach(d -> time.getDisponibilidades().add(
-                    Disponibilidade.builder()
-                            .time(time)
-                            .diaSemana(d.getDiaSemana())
-                            .categoria(d.getCategoria())
-                            .horaInicio(d.getHoraInicio())
-                            .horaFim(d.getHoraFim())
-                            .build()));
-        }
+        disponibilidadeService.substituirDe(time, dto);
 
         return timeRepository.save(time);
     }
@@ -216,16 +184,7 @@ public class TimeService {
         dto.setRegiao(time.getRegiao());
         dto.setLatitude(time.getLatitude());
         dto.setLongitude(time.getLongitude());
-        if (time.getDisponibilidades() != null) {
-            dto.setDisponibilidades(time.getDisponibilidades().stream().map(d -> {
-                var disponibilidadeDTO = new br.com.arenamatch.dto.DisponibilidadeDTO();
-                disponibilidadeDTO.setDiaSemana(d.getDiaSemana());
-                disponibilidadeDTO.setCategoria(d.getCategoria());
-                disponibilidadeDTO.setHoraInicio(d.getHoraInicio());
-                disponibilidadeDTO.setHoraFim(d.getHoraFim());
-                return disponibilidadeDTO;
-            }).collect(Collectors.toList()));
-        }
+        dto.setDisponibilidades(disponibilidadeService.converterParaDTO(time.getDisponibilidades()));
         return dto;
     }
 
@@ -238,42 +197,4 @@ public class TimeService {
         }
     }
 
-    private void validarDisponibilidades(TimeDTO dto) {
-        if (dto.getDisponibilidades() == null) {
-            return;
-        }
-
-        Set<String> diaCategoria = new HashSet<>();
-        for (var d : dto.getDisponibilidades()) {
-            if (d.getDiaSemana() == null || d.getDiaSemana().isBlank()
-                    || d.getCategoria() == null
-                    || d.getHoraInicio() == null || d.getHoraInicio().isBlank()
-                    || d.getHoraFim() == null || d.getHoraFim().isBlank()) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Disponibilidade incompleta.");
-            }
-
-            String chave = d.getDiaSemana().trim().toLowerCase() + "|" + d.getCategoria().name().toLowerCase();
-            if (!diaCategoria.add(chave)) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nao e permitido cadastrar mais de um horario para o mesmo dia e categoria.");
-            }
-
-            LocalTime inicio;
-            LocalTime fim;
-            try {
-                inicio = LocalTime.parse(d.getHoraInicio());
-                fim = LocalTime.parse(d.getHoraFim());
-            } catch (DateTimeParseException e) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Horario invalido.");
-            }
-
-            if (!fim.isAfter(inicio)) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Horario final deve ser maior que o inicial.");
-            }
-
-            if ("MANDO".equalsIgnoreCase(dto.getMandoCampo())
-                    && Duration.between(inicio, fim).toMinutes() > 120) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Times mandantes podem cadastrar intervalos de no maximo 2 horas.");
-            }
-        }
-    }
 }

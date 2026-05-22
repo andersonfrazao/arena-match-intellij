@@ -1,4 +1,4 @@
-package br.com.arenamatch.client;
+package br.com.arenamatch.jsf.client;
 
 import br.com.arenamatch.dto.BuscaFiltroDTO;
 import br.com.arenamatch.dto.ResultadoBuscaDTO;

@@ -176,7 +176,12 @@
                     </h:panelGroup>
 
                     <div class="actions" style="margin-top:.85rem;">
-                        <p:commandButton value="Adicionar horario" action="#{alteracaoCadastroBean.adicionarHorario}" update="agendaEditor tabelaDisp growl" process="agendaEditor" styleClass="btn" icon="pi pi-plus"/>
+                        <p:commandButton value="Adicionar horario"
+                                         action="#{alteracaoCadastroBean.adicionarHorario}"
+                                         process="@this agendaEditor"
+                                         update=":alteracaoForm:agendaEditor :alteracaoForm:tabelaDisp :alteracaoForm:growl"
+                                         styleClass="btn"
+                                         icon="pi pi-plus"/>
                     </div>
 
                     <p:dataTable id="tabelaDisp" value="#{alteracaoCadastroBean.timeDTO.disponibilidades}" var="d"
@@ -192,7 +197,8 @@
                         </p:column>
                         <p:column style="width:70px; text-align:center;">
                             <p:commandButton icon="pi pi-trash" action="#{alteracaoCadastroBean.removerHorario(d)}"
-                                             update="tabelaDisp" process="@this"
+                                             process="@this"
+                                             update=":alteracaoForm:tabelaDisp :alteracaoForm:growl"
                                              styleClass="ui-button-flat ui-button-danger" title="Remover"/>
                         </p:column>
                     </p:dataTable>

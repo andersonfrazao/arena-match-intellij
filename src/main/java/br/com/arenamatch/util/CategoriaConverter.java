@@ -1,5 +1,6 @@
-package br.com.arenamatch.enums;
+package br.com.arenamatch.util;
 
+import br.com.arenamatch.enums.Categoria;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 

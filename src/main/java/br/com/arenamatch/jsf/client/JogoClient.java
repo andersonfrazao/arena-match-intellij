@@ -1,4 +1,4 @@
-package br.com.arenamatch.client;
+package br.com.arenamatch.jsf.client;
 
 import br.com.arenamatch.dto.JogoDTO;
 import br.com.arenamatch.enums.StatusJogo;

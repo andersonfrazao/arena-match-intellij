@@ -1,4 +1,4 @@
-package br.com.arenamatch.beans;
+package br.com.arenamatch.jsf.beans;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -8,8 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 
-import br.com.arenamatch.client.JogoClient;
-import br.com.arenamatch.client.MatchClient;
+import br.com.arenamatch.jsf.client.JogoClient;
+import br.com.arenamatch.jsf.client.MatchClient;
 import br.com.arenamatch.dto.BuscaFiltroDTO;
 import br.com.arenamatch.dto.JogoDTO;
 import br.com.arenamatch.dto.ResultadoBuscaDTO;
