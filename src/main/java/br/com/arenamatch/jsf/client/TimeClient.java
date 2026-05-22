@@ -26,4 +26,8 @@ public class TimeClient {
     public Time atualizarTime(Long id, TimeDTO dto) {
         return restClient.put().uri("/api/times/" + id).body(dto).retrieve().body(Time.class);
     }
+
+    public Time desativarTime(Long id) {
+        return restClient.patch().uri("/api/times/" + id + "/desativar").retrieve().body(Time.class);
+    }
 }

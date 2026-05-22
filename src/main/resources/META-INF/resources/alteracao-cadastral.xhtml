@@ -204,10 +204,39 @@
                     </p:dataTable>
                 </section>
 
+                <section class="panel">
+                    <div class="panelHead">
+                        <div>
+                            <div class="panelTitle">Conta</div>
+                            <div class="muted">Desative o acesso deste cadastro ao Arena Match.</div>
+                        </div>
+                    </div>
+                    <p:commandButton value="Desativar conta"
+                                     action="#{alteracaoCadastroBean.desativarConta}"
+                                     process="@this"
+                                     update=":alteracaoForm:growl"
+                                     icon="pi pi-ban"
+                                     styleClass="ui-button-danger">
+                        <p:confirm header="Desativar conta"
+                                   message="Tem certeza de que deseja desativar a conta?"
+                                   icon="pi pi-exclamation-triangle"/>
+                    </p:commandButton>
+                </section>
+
                 <div class="actions">
                     <p:commandButton value="Salvar alteracoes" action="#{alteracaoCadastroBean.salvar}" update="@form" icon="pi pi-check" styleClass="btn"/>
                 </div>
             </div>
+            <p:confirmDialog global="true" responsive="true">
+                <p:commandButton value="Cancelar"
+                                 type="button"
+                                 icon="pi pi-times"
+                                 styleClass="ui-confirmdialog-no ui-button-flat"/>
+                <p:commandButton value="Confirmar"
+                                 type="button"
+                                 icon="pi pi-check"
+                                 styleClass="ui-confirmdialog-yes ui-button-danger"/>
+            </p:confirmDialog>
         </h:form>
     </ui:define>
 </ui:composition>

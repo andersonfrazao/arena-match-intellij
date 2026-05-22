@@ -16,6 +16,7 @@ import br.com.arenamatch.integration.BrasilApiService;
 import br.com.arenamatch.integration.GoogleMapsService;
 import br.com.arenamatch.repository.JogoRepository;
 import br.com.arenamatch.repository.TimeRepository;
+import br.com.arenamatch.enums.StatusConta;
 import br.com.arenamatch.enums.StatusJogo;
 import lombok.RequiredArgsConstructor;
 
@@ -123,6 +124,15 @@ public class TimeService {
 
         disponibilidadeService.substituirDe(time, dto);
 
+        return timeRepository.save(time);
+    }
+
+    @Transactional
+    public Time desativar(Long id) {
+        Time time = timeRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Time nao encontrado."));
+
+        time.setStatusConta(StatusConta.INATIVO);
         return timeRepository.save(time);
     }
 

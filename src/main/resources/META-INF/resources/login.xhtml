@@ -151,12 +151,21 @@
 
                 <div class="field">
                     <label>E-mail *</label>
-                    <p:inputText id="email" value="#{loginBean.email}" placeholder="email@exemplo.com" required="true" />
+                    <p:inputText id="email"
+                                 value="#{loginBean.email}"
+                                 placeholder="email@exemplo.com"
+                                 required="true"
+                                 requiredMessage="O e-mail é obrigatório." />
                 </div>
 
                 <div class="field">
                     <label>Senha *</label>
-                    <p:password id="pass" value="#{loginBean.senha}" placeholder="••••••••" toggleMask="true" required="true" />
+                    <p:password id="pass"
+                                value="#{loginBean.senha}"
+                                placeholder="••••••••"
+                                toggleMask="true"
+                                required="true"
+                                requiredMessage="A senha é obrigatória." />
                 </div>
 
                 <div class="row2">
@@ -166,7 +175,7 @@
                     <a class="link" href="recuperarSenha.xhtml"><i class="pi pi-lock mr-2"></i>Esqueci a senha</a>
                 </div>
 
-                <p:commandButton value="Entrar" action="#{loginBean.fazerLogin}" update="@form growl" 
+                <p:commandButton value="Entrar" action="#{loginBean.fazerLogin}" update="@form"
                                  styleClass="btn" icon="pi pi-sign-in" iconPos="left" />
 
                 <div class="divider">ou</div>

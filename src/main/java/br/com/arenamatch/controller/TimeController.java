@@ -33,4 +33,9 @@ public class TimeController {
     public ResponseEntity<Time> atualizarTime(@PathVariable Long id, @RequestBody TimeDTO dto) {
         return ResponseEntity.ok(timeService.atualizar(id, dto));
     }
+
+    @PatchMapping("/{id}/desativar")
+    public ResponseEntity<Time> desativarTime(@PathVariable Long id) {
+        return ResponseEntity.ok(timeService.desativar(id));
+    }
 }

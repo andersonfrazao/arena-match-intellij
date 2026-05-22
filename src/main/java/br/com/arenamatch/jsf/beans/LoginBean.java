@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.io.Serializable;
 
@@ -31,7 +32,15 @@ public class LoginBean implements Serializable {
         dto.setEmail(this.email);
         dto.setSenha(this.senha);
 
-        Time timeLogado = authClient.login(dto);
+        Time timeLogado;
+        try {
+            timeLogado = authClient.login(dto);
+        } catch (HttpClientErrorException.Forbidden e) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Conta desativada",
+                            "A conta foi desativada. Entre em contato pelo e-mail arenamatch.app@gmail.com."));
+            return null;
+        }
 
         if (timeLogado != null) {
             FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("timeLogado", timeLogado);

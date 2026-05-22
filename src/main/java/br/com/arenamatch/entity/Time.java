@@ -7,6 +7,8 @@ import java.util.List;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -19,6 +21,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import br.com.arenamatch.enums.StatusConta;
 
 @Entity
 @Table(name = "time")
@@ -44,6 +47,11 @@ public class Time {
 
     @Column(nullable = false)
     private String senha; // Armazenar Hash!
+
+    @Builder.Default
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status_conta", nullable = false)
+    private StatusConta statusConta = StatusConta.ATIVO;
 
     private String whatsapp;
 
@@ -82,5 +90,8 @@ public class Time {
     @PrePersist
     public void prePersist() {
         this.dataCadastro = LocalDateTime.now();
+        if (this.statusConta == null) {
+            this.statusConta = StatusConta.ATIVO;
+        }
     }
 }

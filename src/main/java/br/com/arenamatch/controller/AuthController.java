@@ -16,11 +16,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<Time> login(@RequestBody LoginDTO loginDTO) {
-        try {
-            Time timeLogado = authService.autenticar(loginDTO);
-            return ResponseEntity.ok(timeLogado);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(401).build(); // Unauthorized
-        }
+        Time timeLogado = authService.autenticar(loginDTO);
+        return ResponseEntity.ok(timeLogado);
     }
 }

@@ -124,6 +124,20 @@ public class AlteracaoCadastroBean implements Serializable {
         }
     }
 
+    public String desativarConta() {
+        try {
+            timeClient.desativarTime(timeLogado.getId());
+            FacesContext.getCurrentInstance().getExternalContext().invalidateSession();
+            return "login.xhtml?faces-redirect=true";
+        } catch (HttpClientErrorException e) {
+            adicionarMensagem(FacesMessage.SEVERITY_ERROR, "Nao foi possivel desativar", extrairMensagem(e));
+            return null;
+        } catch (Exception e) {
+            adicionarMensagem(FacesMessage.SEVERITY_ERROR, "Erro", "Falha tecnica: " + e.getMessage());
+            return null;
+        }
+    }
+
     private boolean validarHorario() {
         if (novaDisp.getDiaSemana() == null || novaDisp.getDiaSemana().isBlank()
                 || novaDisp.getCategoria() == null
